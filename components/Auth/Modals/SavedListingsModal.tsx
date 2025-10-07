@@ -171,7 +171,7 @@ export function SavedListingsModal({ open, onClose }: SavedListingsModalProps) {
             <Bookmark className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">No Saved Listings Yet</h3>
             <p className="text-gray-600 mb-4">
-              Save properties you're interested in to keep track of them.
+              Save properties you&apos;re interested in to keep track of them.
             </p>
             <Button onClick={onClose} variant="outline">
               Start Browsing

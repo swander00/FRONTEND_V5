@@ -16,10 +16,6 @@ export default function FilterChips() {
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  if (chips.length === 0) {
-    return null;
-  }
-
   const handleRemoveChip = (chip: any) => {
     if (chip.category === 'city' || chip.category === 'propertyType' || chip.category === 'quickFilters') {
       removeFilter(chip.category, chip.value);
@@ -87,6 +83,11 @@ export default function FilterChips() {
       }
     };
   }, [user, filters, countActiveFilters, autoSaveSearch]);
+
+  // Early return AFTER all hooks have been called
+  if (chips.length === 0) {
+    return null;
+  }
 
   return (
     <>

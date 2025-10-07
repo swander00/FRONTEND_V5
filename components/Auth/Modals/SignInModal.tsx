@@ -160,7 +160,7 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
 
       {/* Sign Up Link */}
       <p className="text-sm text-center text-gray-600 mt-4">
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <a href="#" className="text-blue-600 hover:underline font-medium">
           Sign up here
         </a>

@@ -388,7 +388,7 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
           <DialogHeader className="text-center">
             <DialogTitle className="text-2xl font-bold">Welcome</DialogTitle>
             <DialogDescription className="text-gray-600">
-              Choose how you'd like to get started
+              Choose how you&apos;d like to get started
             </DialogDescription>
           </DialogHeader>
           
@@ -903,7 +903,7 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
 
           {/* Sign Up Link */}
           <p className="text-sm text-center text-gray-600 mt-4">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <button
               type="button"
               onClick={() => setCurrentStep('email-signup')}

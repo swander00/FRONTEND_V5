@@ -168,7 +168,7 @@ export default function PropertyListingsSection({
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
-                      Search Results for "{searchTerm}"
+                      Search Results for &quot;{searchTerm}&quot;
                     </h2>
                     <p className="text-sm text-gray-600">
                       {totalCount} {totalCount === 1 ? 'property' : 'properties'} found
