@@ -9,7 +9,7 @@ import { useSearchParams } from 'next/navigation';
 export default function PropertyCountBar() {
   const { totalCount, currentPage, totalPages } = usePagination();
   const searchParams = useSearchParams();
-  const activeView = searchParams.get('view') || 'gallery';
+  const activeView = searchParams?.get('view') || 'gallery';
   
   return (
     <div className="bg-white border-b border-gray-200">

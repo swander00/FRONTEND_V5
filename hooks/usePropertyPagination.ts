@@ -40,7 +40,7 @@ export function usePropertyPagination({
 
   // parse page from URL
   const pageParam = useMemo(() => {
-    const p = parseInt(searchParams.get('page') ?? '', 10);
+    const p = parseInt(searchParams?.get('page') ?? '', 10);
     return !isNaN(p) && p > 0 ? p : initialPage;
   }, [searchParams, initialPage]);
 
@@ -59,11 +59,11 @@ export function usePropertyPagination({
 
   // build & push a string URL so Next can parse it
   const updateURL = useCallback((page: number) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString() || '');
     if (page <= 1) params.delete('page');
     else params.set('page', String(page));
     const qs = params.toString();
-    const url = qs ? `${pathname}?${qs}` : pathname;
+    const url = qs ? `${pathname || ''}?${qs}` : (pathname || '');
     router.push(url, { scroll: false });
   }, [searchParams, router, pathname]);
 

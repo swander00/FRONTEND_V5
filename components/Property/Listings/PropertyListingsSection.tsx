@@ -68,8 +68,8 @@ export default function PropertyListingsSection({
 }: PropertyListingsSectionProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const view = searchParams.get('view') || 'gallery';
-  const searchTerm = searchParams.get('search');
+  const view = searchParams?.get('view') || 'gallery';
+  const searchTerm = searchParams?.get('search');
   const { filters } = useFilters();
   const [retryCount, setRetryCount] = useState(0);
   
@@ -177,7 +177,7 @@ export default function PropertyListingsSection({
                 </div>
                 <button
                   onClick={() => {
-                    const params = new URLSearchParams(searchParams.toString());
+                    const params = new URLSearchParams(searchParams?.toString() || '');
                     params.delete('search');
                     router.push(`/?${params.toString()}`, { scroll: false });
                   }}
