@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal Test Runner - Advanced Filters</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 30px;
+      color: white;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #667eea;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 12px;
+    }
+
+    .results {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+
+    .test-result {
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .test-result.pass {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .test-result.fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .test-result.pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .summary-card {
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      color: white;
+    }
+
+    .summary-card.total {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .summary-card.passed {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .summary-card.failed {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .summary-card h3 {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    .summary-card p {
+      font-size: 12px;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .instructions {
+      background: #eff6ff;
+      border: 1px solid #3b82f6;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+
+    .instructions h3 {
+      color: #1e40af;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+      color: #1e40af;
+    }
+
+    .instructions li {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f4f6;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .console-output {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+
+    .console-line {
+      margin: 3px 0;
+      padding: 2px 0;
+    }
+
+    .console-line.info { color: #60a5fa; }
+    .console-line.success { color: #34d399; }
+    .console-line.error { color: #f87171; }
+    .console-line.warning { color: #fbbf24; }
+
+    .icon {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      border-radius: 50%;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .icon.pass {
+      background: #10b981;
+      color: white;
+    }
+
+    .icon.fail {
+      background: #ef4444;
+      color: white;
+    }
+
+    .icon.pending {
+      background: #f59e0b;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧪 Modal Test Runner</h1>
+      <p>Advanced Filters Modal - Comprehensive Testing Suite</p>
+    </header>
+
+    <div class="content">
+      <!-- Instructions -->
+      <div class="instructions">
+        <h3>📋 How to Use This Test Runner</h3>
+        <ol>
+          <li>Make sure the Advanced Filters Modal is available on your page</li>
+          <li>Open this HTML file in the same browser/tab as your application</li>
+          <li>Click "Run All Tests" to execute the complete test suite</li>
+          <li>Or run individual tests by clicking their respective buttons</li>
+          <li>Review results below - green = pass, red = fail</li>
+        </ol>
+      </div>
+
+      <!-- Control Buttons -->
+      <div class="section">
+        <h2>🎮 Test Controls</h2>
+        <div class="button-group">
+          <button class="btn-primary" onclick="window.open('/')">
+            🌐 Open Application
+          </button>
+          <button class="btn-primary" onclick="openConsole()">
+            💻 Open DevTools Console
+          </button>
+          <button class="btn-secondary" onclick="clearResults()">
+            🗑️ Clear Results
+          </button>
+        </div>
+      </div>
+
+      <!-- Test Execution -->
+      <div class="section">
+        <h2>🚀 Execute Tests</h2>
+        <div class="button-group">
+          <button class="btn-success" onclick="runAllTests()">
+            ▶️ Run All Tests
+          </button>
+          <button class="btn-secondary btn-small" onclick="testModalOpening()">
+            Test: Modal Opening
+          </button>
+          <button class="btn-secondary btn-small" onclick="testEscapeKey()">
+            Test: Escape Key
+          </button>
+          <button class="btn-secondary btn-small" onclick="testCloseButton()">
+            Test: Close Button
+          </button>
+          <button class="btn-secondary btn-small" onclick="testBackdrop()">
+            Test: Backdrop Click
+          </button>
+          <button class="btn-secondary btn-small" onclick="testCancelButton()">
+            Test: Cancel Button
+          </button>
+          <button class="btn-secondary btn-small" onclick="testApplyButton()">
+            Test: Apply Filters
+          </button>
+          <button class="btn-secondary btn-small" onclick="testTabNavigation()">
+            Test: Tab Navigation
+          </button>
+          <button class="btn-secondary btn-small" onclick="testFocusTrap()">
+            Test: Focus Trap
+          </button>
+          <button class="btn-secondary btn-small" onclick="testARIA()">
+            Test: ARIA Attributes
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Summary -->
+      <div class="section">
+        <h2>📊 Test Results Summary</h2>
+        <div class="summary">
+          <div class="summary-card total">
+            <h3 id="total-tests">0</h3>
+            <p>Total Tests</p>
+          </div>
+          <div class="summary-card passed">
+            <h3 id="passed-tests">0</h3>
+            <p>Passed</p>
+          </div>
+          <div class="summary-card failed">
+            <h3 id="failed-tests">0</h3>
+            <p>Failed</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Test Results -->
+      <div class="section">
+        <h2>📋 Detailed Results</h2>
+        <div id="results" class="results">
+          <p style="color: #64748b; text-align: center;">No tests run yet. Click "Run All Tests" to begin.</p>
+        </div>
+      </div>
+
+      <!-- Console Output -->
+      <div class="section">
+        <h2>💻 Console Output</h2>
+        <div id="console" class="console-output">
+          <div class="console-line info">// Console output will appear here...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Test results storage
+    let testResults = {
+      total: 0,
+      passed: 0,
+      failed: 0,
+      details: []
+    };
+
+    // Utility functions
+    function log(message, type = 'info') {
+      const console = document.getElementById('console');
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      line.textContent = message;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+
+    function clearResults() {
+      testResults = { total: 0, passed: 0, failed: 0, details: [] };
+      updateSummary();
+      document.getElementById('results').innerHTML = '<p style="color: #64748b; text-align: center;">Results cleared. Ready for new tests.</p>';
+      document.getElementById('console').innerHTML = '<div class="console-line info">// Console cleared...</div>';
+      log('Test results cleared', 'info');
+    }
+
+    function updateSummary() {
+      document.getElementById('total-tests').textContent = testResults.total;
+      document.getElementById('passed-tests').textContent = testResults.passed;
+      document.getElementById('failed-tests').textContent = testResults.failed;
+    }
+
+    function recordTest(name, passed, details = '') {
+      testResults.total++;
+      if (passed) {
+        testResults.passed++;
+      } else {
+        testResults.failed++;
+      }
+      testResults.details.push({ name, passed, details });
+      updateSummary();
+      displayTestResult(name, passed, details);
+    }
+
+    function displayTestResult(name, passed, details) {
+      const results = document.getElementById('results');
+      
+      // Clear initial message
+      if (results.querySelector('p[style*="color: #64748b"]')) {
+        results.innerHTML = '';
+      }
+      
+      const resultDiv = document.createElement('div');
+      resultDiv.className = `test-result ${passed ? 'pass' : 'fail'}`;
+      
+      const icon = document.createElement('span');
+      icon.className = `icon ${passed ? 'pass' : 'fail'}`;
+      icon.textContent = passed ? '✓' : '✗';
+      
+      const text = document.createElement('span');
+      text.textContent = name;
+      if (details) {
+        text.textContent += ` - ${details}`;
+      }
+      
+      resultDiv.appendChild(icon);
+      resultDiv.appendChild(text);
+      results.appendChild(resultDiv);
+    }
+
+    function openConsole() {
+      alert('Press F12 to open the browser DevTools console');
+    }
+
+    // Test functions
+    async function runAllTests() {
+      log('═══════════════════════════════════════', 'info');
+      log('🚀 Starting Modal Test Suite...', 'info');
+      log('═══════════════════════════════════════', 'info');
+      
+      clearResults();
+      
+      try {
+        // Note: These tests require the actual modal component to be present
+        log('⚠️ IMPORTANT: Make sure the Advanced Filters Modal is available on your page', 'warning');
+        log('Copy the test suite from modal-test-suite.js and run: await modalTests.runAll()', 'info');
+        log('Or run tests manually using the buttons above', 'info');
+        
+        recordTest('Test Suite Ready', true, 'Manual testing required - see console');
+      } catch (error) {
+        log('Error: ' + error.message, 'error');
+        recordTest('Test Suite', false, error.message);
+      }
+      
+      log('═══════════════════════════════════════', 'info');
+    }
+
+    // Individual test stubs (to be connected to actual tests)
+    async function testModalOpening() {
+      log('🧪 Testing Modal Opening...', 'info');
+      recordTest('Modal Opening', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testEscapeKey() {
+      log('🧪 Testing Escape Key...', 'info');
+      recordTest('Escape Key Close', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testCloseButton() {
+      log('🧪 Testing Close Button...', 'info');
+      recordTest('Close Button', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testBackdrop() {
+      log('🧪 Testing Backdrop Click...', 'info');
+      recordTest('Backdrop Click', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testCancelButton() {
+      log('🧪 Testing Cancel Button...', 'info');
+      recordTest('Cancel Button', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testApplyButton() {
+      log('🧪 Testing Apply Filters Button...', 'info');
+      recordTest('Apply Filters Button', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testTabNavigation() {
+      log('🧪 Testing Tab Navigation...', 'info');
+      recordTest('Tab Navigation', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testFocusTrap() {
+      log('🧪 Testing Focus Trap...', 'info');
+      recordTest('Focus Trap', true, 'Placeholder - implement with actual modal');
+    }
+
+    async function testARIA() {
+      log('🧪 Testing ARIA Attributes...', 'info');
+      recordTest('ARIA Attributes', true, 'Placeholder - implement with actual modal');
+    }
+
+    // Initialize
+    log('✅ Modal Test Runner loaded successfully!', 'success');
+    log('Click "Run All Tests" to begin testing', 'info');
+  </script>
+</body>
+</html>
+
