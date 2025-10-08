@@ -321,7 +321,6 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
     transactionStatus: contextFilters.status || 'buy',
     dateRange: 'all-time',
     customDateStart: '',
-    searchQuery: '',
     cities: contextFilters.city || [] as string[],
     propertyTypes: contextFilters.propertyType || [] as string[],
     priceMin: contextFilters.priceRange?.min?.toString() || '',
@@ -331,7 +330,7 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
     bathroomsMin: contextFilters.bathrooms?.min?.toString() || '',
     bathroomsMax: contextFilters.bathrooms?.max?.toString() || '',
     // Advanced
-    propertyClass: [] as string[],
+    propertyClass: ['Freehold', 'Condo'] as string[],
     sqftMin: '',
     sqftMax: '',
     houseStyles: [] as string[],
@@ -365,7 +364,6 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
       transactionStatus: 'buy',
       dateRange: 'all-time',
       customDateStart: '',
-      searchQuery: '',
       cities: [] as string[],
       propertyTypes: [] as string[],
       priceMin: '',
@@ -374,7 +372,7 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
       bedroomsMax: '',
       bathroomsMin: '',
       bathroomsMax: '',
-      propertyClass: [] as string[],
+      propertyClass: ['Freehold', 'Condo'] as string[],
       sqftMin: '',
       sqftMax: '',
       houseStyles: [] as string[],
@@ -422,6 +420,42 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
 
     console.log('Filters applied:', filters);
     onClose();
+  };
+
+  const handlePropertyClassToggle = (selectedClass: string) => {
+    const current = filters.propertyClass;
+    
+    if (selectedClass === 'Commercial') {
+      // If Commercial is clicked, it becomes the only selection
+      if (current.includes('Commercial')) {
+        // Deselecting Commercial, revert to default
+        updateFilter('propertyClass', ['Freehold', 'Condo']);
+      } else {
+        // Selecting Commercial, clear others
+        updateFilter('propertyClass', ['Commercial']);
+      }
+    } else {
+      // Clicking Freehold or Condo
+      if (current.includes('Commercial')) {
+        // If Commercial is selected, replace it with the clicked item
+        updateFilter('propertyClass', [selectedClass]);
+      } else {
+        // Normal toggle for Freehold/Condo
+        if (current.includes(selectedClass)) {
+          // Deselecting - remove it but keep the other
+          const updated = current.filter(c => c !== selectedClass);
+          // Ensure at least one is selected (prevent both from being deselected)
+          if (updated.length === 0) {
+            updateFilter('propertyClass', [selectedClass]);
+          } else {
+            updateFilter('propertyClass', updated);
+          }
+        } else {
+          // Selecting - add it
+          updateFilter('propertyClass', [...current, selectedClass]);
+        }
+      }
+    }
   };
 
   const selectStatus = (status: string) => {
@@ -535,33 +569,6 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
 
         {/* Scrollable Content */}
         <div style={{ overflowY: 'auto', flex: 1 }}>
-          {/* SEARCH BAR - VERY TOP */}
-          <div style={{ marginBottom: '24px', padding: '0 12px' }}>
-            <div style={{
-              position: 'relative',
-              display: 'flex',
-              alignItems: 'center',
-            }}>
-              <Search size={20} color="#94a3b8" style={{ position: 'absolute', left: '16px', pointerEvents: 'none' }} />
-              <input
-                type="text"
-                placeholder="Search by location, street, MLS#, keywords..."
-                value={filters.searchQuery}
-                onChange={(e) => updateFilter('searchQuery', e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '16px 16px 16px 48px',
-                  background: 'white',
-                  border: '2px solid #e2e8f0',
-                  borderRadius: '16px',
-                  fontSize: '15px',
-                  color: '#1e293b',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-                }}
-              />
-            </div>
-          </div>
-
           {/* PRIMARY FILTERS */}
           <div style={{
             padding: '12px',
@@ -575,6 +582,82 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
               textTransform: 'uppercase',
               letterSpacing: '0.5px',
             }}>Primary Filters</h3>
+
+            {/* Property Class */}
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                fontSize: '14px', 
+                fontWeight: '600', 
+                color: '#475569', 
+                marginBottom: '12px' 
+              }}>
+                <Building2 size={18} /> Property Class
+                {filters.propertyClass.length > 0 && (
+                  <span style={{
+                    marginLeft: 'auto',
+                    fontSize: '12px',
+                    fontWeight: '700',
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                  }}>
+                    {filters.propertyClass.length} selected
+                  </span>
+                )}
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                {['Freehold', 'Condo', 'Commercial'].map(propertyClass => {
+                  const isSelected = filters.propertyClass.includes(propertyClass);
+                  return (
+                    <button 
+                      key={propertyClass} 
+                      onClick={() => handlePropertyClassToggle(propertyClass)} 
+                      style={{
+                        padding: '12px 20px',
+                        background: isSelected 
+                          ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                          : 'white',
+                        color: isSelected ? 'white' : '#475569',
+                        border: isSelected ? 'none' : '2px solid #e2e8f0',
+                        borderRadius: '24px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        boxShadow: isSelected 
+                          ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                          : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                        transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                        textAlign: 'center',
+                        minHeight: '46px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.transform = 'scale(1)';
+                          e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                        }
+                      }}
+                    >
+                      {propertyClass}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Transaction Status & Date Range - Two Button Pill Group */}
             <div style={{ marginBottom: '24px', position: 'relative' }}>

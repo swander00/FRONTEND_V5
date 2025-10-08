@@ -22,25 +22,25 @@ export default function PropertyInformationCard({ property }: PropertyInformatio
   return (
     <div className="bg-gradient-to-br from-white via-slate-50/30 to-white rounded-2xl shadow-lg border border-slate-200/60 overflow-hidden">
       {/* Card Header */}
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
-            <Building2 className="h-5 w-5 text-white" />
+      <div className="p-4 sm:p-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
+            <Building2 className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
               Property Information
             </h3>
-            <p className="text-sm text-slate-500 font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
               Detailed property specifications
             </p>
           </div>
         </div>
-        <div className="w-20 h-px bg-gradient-to-r from-blue-400 to-indigo-500" />
+        <div className="w-16 sm:w-20 h-px bg-gradient-to-r from-blue-400 to-indigo-500" />
       </div>
 
       {/* All Sections Container */}
-      <div className="px-6 pb-6 space-y-3">
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-3">
         <ListingInformationSection property={property} />
         <PropertyDetailsSection property={property} />
         <BasementSection property={property} />

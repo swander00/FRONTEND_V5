@@ -143,22 +143,22 @@ export default function RoomDetailsCard({ property }: RoomDetailsCardProps) {
         </div>
         
         {/* 4-Brick Stats Row */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-lg font-bold text-gray-900">{property.Bedrooms}</div>
-            <div className="text-xs text-gray-600">Beds</div>
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+          <div className="text-center p-1.5 sm:p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-base sm:text-lg font-bold text-gray-900">{property.Bedrooms}</div>
+            <div className="text-[10px] sm:text-xs text-gray-600">Beds</div>
           </div>
-          <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-lg font-bold text-gray-900">{property.Bathrooms}</div>
-            <div className="text-xs text-gray-600">Baths</div>
+          <div className="text-center p-1.5 sm:p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-base sm:text-lg font-bold text-gray-900">{property.Bathrooms}</div>
+            <div className="text-[10px] sm:text-xs text-gray-600">Baths</div>
           </div>
-          <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-lg font-bold text-gray-900">{property.SquareFootage ? Math.round(Number(property.SquareFootage) / 1000) : 'N/A'}</div>
-            <div className="text-xs text-gray-600">K Sq Ft</div>
+          <div className="text-center p-1.5 sm:p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-base sm:text-lg font-bold text-gray-900">{property.SquareFootage ? Math.round(Number(property.SquareFootage) / 1000) : 'N/A'}</div>
+            <div className="text-[10px] sm:text-xs text-gray-600 whitespace-nowrap">K Sq Ft</div>
           </div>
-          <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="text-lg font-bold text-gray-900">{hasRoomData ? roomData.length : 'N/A'}</div>
-            <div className="text-xs text-gray-600">Rooms</div>
+          <div className="text-center p-1.5 sm:p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="text-base sm:text-lg font-bold text-gray-900">{hasRoomData ? roomData.length : 'N/A'}</div>
+            <div className="text-[10px] sm:text-xs text-gray-600">Rooms</div>
           </div>
         </div>
 
@@ -197,8 +197,8 @@ export default function RoomDetailsCard({ property }: RoomDetailsCardProps) {
               </div>
             ) : hasRoomData ? (
               <div className="max-h-60 overflow-y-auto">
-                {/* Table Header */}
-                <div className="grid grid-cols-12 gap-2 px-2 py-1.5 bg-gray-50 rounded-t-lg border border-gray-200 text-xs font-medium text-gray-700">
+                {/* Desktop Table Header - hidden on mobile */}
+                <div className="hidden md:grid grid-cols-12 gap-2 px-2 py-1.5 bg-gray-50 rounded-t-lg border border-gray-200 text-xs font-medium text-gray-700">
                   <div className="col-span-3">Room Type</div>
                   <div className="col-span-2">Level</div>
                   <div className="col-span-2">Dimensions</div>
@@ -206,45 +206,84 @@ export default function RoomDetailsCard({ property }: RoomDetailsCardProps) {
                 </div>
                 
                 {/* Room Rows */}
-                <div className="space-y-0">
+                <div className="space-y-2 md:space-y-0">
                   {roomData.map((room, index) => (
-                    <div key={index} className={`grid grid-cols-12 gap-2 px-2 py-2 border-l border-r border-gray-200 hover:bg-gray-50 transition-colors ${index === roomData.length - 1 ? 'border-b rounded-b-lg' : 'border-b border-gray-100'}`}>
-                      {/* Room Type */}
-                      <div className="col-span-3 flex items-center gap-2">
-                        <div className={`p-1 rounded border ${getColorClasses(room.color)}`}>
-                          {room.icon}
+                    <div key={index}>
+                      {/* Desktop Row */}
+                      <div className={`hidden md:grid grid-cols-12 gap-2 px-2 py-2 border-l border-r border-gray-200 hover:bg-gray-50 transition-colors ${index === roomData.length - 1 ? 'border-b rounded-b-lg' : 'border-b border-gray-100'}`}>
+                        {/* Room Type */}
+                        <div className="col-span-3 flex items-center gap-2">
+                          <div className={`p-1 rounded border ${getColorClasses(room.color)}`}>
+                            {room.icon}
+                          </div>
+                          <span className="text-xs font-medium text-gray-900 truncate">{room.roomType}</span>
                         </div>
-                        <span className="text-xs font-medium text-gray-900 truncate">{room.roomType}</span>
+                        
+                        {/* Level */}
+                        <div className="col-span-2 flex items-center gap-1 text-xs text-gray-600">
+                          <MapPin className="h-3 w-3 text-gray-400" />
+                          <span className="truncate">{room.level}</span>
+                        </div>
+                        
+                        {/* Dimensions */}
+                        <div className="col-span-2 flex items-center gap-1 text-xs text-gray-600">
+                          <Ruler className="h-3 w-3 text-gray-400" />
+                          <span className="truncate">{room.roomDimensions}</span>
+                        </div>
+                        
+                        {/* Features */}
+                        <div className="col-span-5 flex items-center gap-1 flex-wrap">
+                          {room.roomFeatures.length > 0 ? (
+                            <>
+                              {room.roomFeatures.map((feature, featureIndex) => (
+                                <span
+                                  key={featureIndex}
+                                  className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-full border border-indigo-200 whitespace-nowrap shadow-sm"
+                                >
+                                  <Zap className="h-2 w-2" />
+                                  {feature}
+                                </span>
+                              ))}
+                            </>
+                          ) : (
+                            <span className="text-xs text-gray-400">No features</span>
+                          )}
+                        </div>
                       </div>
-                      
-                      {/* Level */}
-                      <div className="col-span-2 flex items-center gap-1 text-xs text-gray-600">
-                        <MapPin className="h-3 w-3 text-gray-400" />
-                        <span className="truncate">{room.level}</span>
-                      </div>
-                      
-                      {/* Dimensions */}
-                      <div className="col-span-2 flex items-center gap-1 text-xs text-gray-600">
-                        <Ruler className="h-3 w-3 text-gray-400" />
-                        <span className="truncate">{room.roomDimensions}</span>
-                      </div>
-                      
-                      {/* Features */}
-                      <div className="col-span-5 flex items-center gap-1 flex-wrap">
-                        {room.roomFeatures.length > 0 ? (
-                          <>
+
+                      {/* Mobile Card */}
+                      <div className="md:hidden p-3 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-2 mb-2">
+                          <div className={`p-1.5 rounded border ${getColorClasses(room.color)}`}>
+                            {room.icon}
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="text-sm font-semibold text-gray-900">{room.roomType}</h4>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <MapPin className="h-3 w-3 text-gray-400" />
+                                {room.level}
+                              </span>
+                              <span className="text-gray-300">•</span>
+                              <span className="flex items-center gap-1">
+                                <Ruler className="h-3 w-3 text-gray-400" />
+                                {room.roomDimensions}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {room.roomFeatures.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
                             {room.roomFeatures.map((feature, featureIndex) => (
                               <span
                                 key={featureIndex}
-                                className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-full border border-indigo-200 whitespace-nowrap shadow-sm"
+                                className="inline-flex items-center gap-1 px-2 py-1 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 rounded-full border border-indigo-200 shadow-sm"
                               >
                                 <Zap className="h-2 w-2" />
                                 {feature}
                               </span>
                             ))}
-                          </>
-                        ) : (
-                          <span className="text-xs text-gray-400">No features</span>
+                          </div>
                         )}
                       </div>
                     </div>

@@ -2,7 +2,7 @@ import NavigationButton from './NavigationButton';
 
 export default function Navigation() {
   return (
-    <nav className="flex items-center space-x-2">
+    <nav className="flex md:flex-row flex-col md:items-center md:space-x-2 md:space-y-0 space-y-2">
       <NavigationButton 
         label="Buy" 
         href="/search" 

@@ -24,25 +24,25 @@ export function GetStartedButton() {
 
   return (
     <>
-      <div className="flex items-center space-x-2">
+      <div className="flex md:flex-row flex-col md:items-center md:space-x-2 md:space-y-0 space-y-2">
         <Button 
           onClick={handleDemoSignIn}
           disabled={isSigningInDemo}
           variant="outline"
-          className="px-3 py-2 rounded-lg font-medium transition-colors text-sm"
+          className="px-3 py-2 rounded-lg font-medium transition-colors text-sm w-full md:w-auto"
         >
           {isSigningInDemo ? 'Signing In...' : 'Demo Sign In'}
         </Button>
         <Button 
           onClick={() => setIsSignInOpen(true)}
           variant="outline"
-          className="px-4 py-2 rounded-lg font-medium transition-colors"
+          className="px-4 py-2 rounded-lg font-medium transition-colors w-full md:w-auto"
         >
           Sign In
         </Button>
         <Button 
           onClick={() => setIsSignUpOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors w-full md:w-auto"
         >
           Get Started
         </Button>

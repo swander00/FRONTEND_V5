@@ -10,7 +10,7 @@ export default function ActionButtons() {
   const { user, isAuthenticated } = useAuth();
 
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex md:flex-row flex-col md:items-center md:space-x-3 md:space-y-0 space-y-3">
       {isAuthenticated ? (
         <UserMenu />
       ) : (

@@ -23,26 +23,26 @@ export default function DescriptionCard({ property }: DescriptionCardProps) {
   return (
     <div className="bg-gradient-to-br from-white via-slate-50/30 to-white backdrop-blur-sm rounded-2xl border border-slate-200/60 overflow-hidden">
       {/* Header Section */}
-      <div className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
-            <FileText className="h-5 w-5 text-white" />
+      <div className="p-4 sm:p-6">
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-sm">
+            <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
               Property Description
             </h3>
-            <p className="text-sm text-slate-500 font-medium">
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
               Detailed property overview and features
             </p>
           </div>
         </div>
-        <div className="w-20 h-px bg-gradient-to-r from-blue-400 to-indigo-500" />
+        <div className="w-16 sm:w-20 h-px bg-gradient-to-r from-blue-400 to-indigo-500" />
       </div>
 
       {/* Tab Navigation */}
-      <div className="px-6 pb-4">
-        <div className="flex bg-gradient-to-r from-slate-100/80 to-slate-50/80 rounded-xl p-1.5 border border-slate-200/60">
+      <div className="px-4 sm:px-6 pb-3 sm:pb-4">
+        <div className="flex bg-gradient-to-r from-slate-100/80 to-slate-50/80 rounded-xl p-1 sm:p-1.5 border border-slate-200/60">
           <TabButton
             active={activeTab === 'about'}
             onClick={() => setActiveTab('about')}
@@ -61,7 +61,7 @@ export default function DescriptionCard({ property }: DescriptionCardProps) {
       </div>
 
       {/* Content Section */}
-      <div className="px-6 pb-6">
+      <div className="px-4 sm:px-6 pb-4 sm:pb-6">
         {activeTab === 'about' ? (
           <DescriptionContent 
             description={description} 
@@ -102,16 +102,17 @@ function TabButton({ active, onClick, icon: Icon, label, colorScheme }: TabButto
   return (
     <button
       onClick={onClick}
-      className={`flex-1 px-6 py-3 text-sm font-semibold transition-all duration-300 rounded-lg ${
+      className={`flex-1 px-3 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-300 rounded-lg ${
         active ? styles[colorScheme].active : styles[colorScheme].inactive
       }`}
       aria-pressed={active}
     >
-      <div className="flex items-center justify-center gap-3">
-        <Icon className={`h-4 w-4 transition-colors duration-300 ${
+      <div className="flex items-center justify-center gap-1.5 sm:gap-3">
+        <Icon className={`h-3 w-3 sm:h-4 sm:w-4 transition-colors duration-300 ${
           active ? 'text-white' : 'text-slate-500'
         }`} />
-        <span>{label}</span>
+        <span className="hidden sm:inline">{label}</span>
+        <span className="sm:hidden">{label.split(' ')[0]}</span>
       </div>
     </button>
   );

@@ -143,54 +143,54 @@ export default function CompactPropertyHeader({ property: propProperty }: Compac
       <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10"></div>
       
       {/* Content */}
-      <div className="relative p-4 text-white">
+      <div className="relative p-3 sm:p-4 text-white">
         {/* Row 1: Primary Information */}
-        <div className="flex items-start justify-between gap-4 mb-3">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4 mb-3">
           {/* Left: Address and Badges */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 w-full sm:w-auto">
             {/* Address with gradient text */}
-            <h1 className="text-2xl font-bold truncate mb-2 bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent drop-shadow-lg">
+            <h1 className="text-lg sm:text-2xl font-bold truncate mb-2 bg-gradient-to-r from-white to-white/90 bg-clip-text text-transparent drop-shadow-lg">
               {property.StreetAddress}
             </h1>
             
             {/* Location and Badges - All inline */}
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm text-white/90 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              <span className="text-xs sm:text-sm text-white/90 flex items-center gap-1">
+                <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 {property.City}, {property.StateOrProvince}
               </span>
               
               {property.Community && (
-                <span className="px-2 py-0.5 bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-sm rounded text-xs font-medium border border-white/40 shadow-sm">
+                <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-gradient-to-r from-white/25 to-white/15 backdrop-blur-sm rounded text-[10px] sm:text-xs font-medium border border-white/40 shadow-sm">
                   {property.Community}
                 </span>
               )}
               
-              <span className="px-2 py-0.5 bg-gradient-to-r from-white/30 to-white/20 backdrop-blur-sm rounded text-xs font-semibold border border-white/50 shadow-md">
+              <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-gradient-to-r from-white/30 to-white/20 backdrop-blur-sm rounded text-[10px] sm:text-xs font-semibold border border-white/50 shadow-md">
                 {property.MlsStatus}
               </span>
               
-              <span className="px-2 py-0.5 bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm rounded text-xs border border-white/30 shadow-sm">
+              <span className="px-1.5 py-0.5 sm:px-2 sm:py-0.5 bg-gradient-to-r from-white/20 to-white/10 backdrop-blur-sm rounded text-[10px] sm:text-xs border border-white/30 shadow-sm">
                 {property.PropertyType}
               </span>
             </div>
           </div>
           
           {/* Right: Price */}
-          <div className="text-right flex-shrink-0">
-            <div className="text-3xl font-bold tracking-tight bg-gradient-to-br from-white via-white to-white/80 bg-clip-text text-transparent drop-shadow-2xl">
+          <div className="text-left sm:text-right flex-shrink-0 w-full sm:w-auto">
+            <div className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-br from-white via-white to-white/80 bg-clip-text text-transparent drop-shadow-2xl">
               ${(property.ListPrice || 0).toLocaleString()}
             </div>
-            <div className="text-xs text-white/90 mt-0.5 font-medium">
+            <div className="text-[10px] sm:text-xs text-white/90 mt-0.5 font-medium">
               Tax: ${(property as any).PropertyTaxes?.toLocaleString() || '0'} ({(property as any).TaxYear || 'N/A'})
             </div>
           </div>
         </div>
         
         {/* Row 2: Meta Information and Actions */}
-        <div className="flex items-center justify-between gap-4 pt-3 border-t border-white/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 pt-3 border-t border-white/20">
           {/* Left: Open House */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
             {property.OpenHouseDetails && (
               <OpenHouseBadge 
                 dateTime={property.OpenHouseDetails} 
@@ -202,30 +202,31 @@ export default function CompactPropertyHeader({ property: propProperty }: Compac
           </div>
           
           {/* Center: Engagement Stats */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3 text-sm">
-              <div className="flex items-center gap-1.5">
-                <Eye className="w-4 h-4" />
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm">
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="font-medium">{(property as any).ViewCount || 0}</span>
-                <span className="text-white/70 text-xs">views</span>
+                <span className="text-white/70 text-[10px] sm:text-xs hidden sm:inline">views</span>
               </div>
               
-              <div className="flex items-center gap-1.5">
-                <Bookmark className="w-4 h-4" />
+              <div className="flex items-center gap-1 sm:gap-1.5">
+                <Bookmark className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="font-medium">{(property as any).SaveCount || 0}</span>
-                <span className="text-white/70 text-xs">saved</span>
+                <span className="text-white/70 text-[10px] sm:text-xs hidden sm:inline">saved</span>
               </div>
             </div>
             
             {/* Interest Badge */}
-            <div className={`flex items-center gap-1 px-2 py-1 ${interest.color} rounded-full text-xs font-semibold shadow-lg bg-gradient-to-r`}>
-              <TrendingUp className="w-3 h-3" />
-              {interest.label}
+            <div className={`flex items-center gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1 ${interest.color} rounded-full text-[10px] sm:text-xs font-semibold shadow-lg bg-gradient-to-r whitespace-nowrap`}>
+              <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span className="hidden sm:inline">{interest.label}</span>
+              <span className="sm:hidden">{interest.label.split(' ')[0]}</span>
             </div>
           </div>
           
           {/* Right: Action Buttons */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto justify-end">
             <PropertyLikeButton 
               property={property}
               variant="header"

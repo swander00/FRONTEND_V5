@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockSearch } from '@/lib/mockData';
+import { searchProperties } from '@/lib/propertyDataService';
+
+// Force dynamic rendering for this API route
+// This ensures the route is always executed at runtime (required for real database queries)
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,8 +25,8 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.trim();
     console.log('Search request:', { searchTerm, page, pageSize, status });
 
-    // Use mock search function
-    const result = await mockSearch(searchTerm, status, page, pageSize);
+    // Use data service abstraction (currently mock, ready for real data)
+    const result = await searchProperties(searchTerm, status, page, pageSize);
 
     return NextResponse.json({
       properties: result.properties,

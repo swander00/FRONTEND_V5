@@ -6,6 +6,7 @@ export { default as FiltersContainer } from './Filters/FiltersContainer';
 export { default as PrimaryFilters } from './Filters/PrimaryFilters/PrimaryFilters';
 export { default as QuickFilters } from './Filters/QuickFilters';
 export { default as FilterChips } from './Filters/FilterChips/FilterChips';
+export { default as MobileFiltersButton } from './Filters/MobileFiltersButton';
 
 // Filter Context
 export { FilterProvider, useFilters } from './Filters/FilterContext/FilterContext';

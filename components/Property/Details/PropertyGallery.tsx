@@ -112,9 +112,9 @@ export default function PropertyImageGallery({
 
   return (
     <>
-      <div className="w-full grid grid-cols-2 gap-3 h-[500px]">
+      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 h-[400px] sm:h-[450px] md:h-[500px]">
         {/* Left Column - Main Image */}
-        <div className="relative rounded-xl overflow-hidden shadow-xl group">
+        <div className="relative rounded-xl overflow-hidden shadow-xl group h-full">
           <img
             src={propertyImages[0].url}
             alt={propertyImages[0].alt}
@@ -126,52 +126,53 @@ export default function PropertyImageGallery({
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
           
           {/* Top Left - Badges */}
-          <div className="absolute top-4 left-4 flex flex-col gap-2">
-            <span className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 backdrop-blur-sm rounded-lg text-white text-sm font-semibold shadow-lg border border-white/30">
+          <div className="absolute top-2 left-2 sm:top-4 sm:left-4 flex flex-col gap-2">
+            <span className="px-2 py-1 sm:px-3 sm:py-1.5 bg-gradient-to-r from-blue-500 to-purple-600 backdrop-blur-sm rounded-lg text-white text-xs sm:text-sm font-semibold shadow-lg border border-white/30">
               {status}
             </span>
-            <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-gray-800 text-sm font-medium shadow-md">
+            <span className="px-2 py-1 sm:px-3 sm:py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-gray-800 text-xs sm:text-sm font-medium shadow-md">
               {propertyType}
             </span>
           </div>
           
           {/* Top Right - Like Button */}
-          <div className="absolute top-4 right-4">
+          <div className="absolute top-2 right-2 sm:top-4 sm:right-4">
             <button
               onClick={handleLikeClick}
-              className={`p-3 rounded-full transition-all duration-300 backdrop-blur-sm border border-white/30 shadow-lg ${
+              className={`p-2 sm:p-3 rounded-full transition-all duration-300 backdrop-blur-sm border border-white/30 shadow-lg ${
                 isLiked 
                   ? 'bg-gradient-to-br from-red-500 to-pink-600 shadow-red-500/50 scale-110' 
                   : 'bg-white/90 hover:bg-white hover:scale-105'
               }`}
               aria-label="Like property"
             >
-              <Heart className={`w-5 h-5 ${isLiked ? 'fill-white text-white' : 'text-gray-700'}`} />
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'fill-white text-white' : 'text-gray-700'}`} />
             </button>
           </div>
           
           {/* Bottom Left - Virtual Tour Button */}
-          <div className="absolute bottom-4 left-4">
-            <button className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold shadow-lg transition-all duration-200 hover:scale-105 border border-white/30">
-              <Video className="w-5 h-5" />
-              <span>Virtual Tour</span>
+          <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4">
+            <button className="flex items-center gap-1 sm:gap-2 px-2 py-1.5 sm:px-4 sm:py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-semibold shadow-lg transition-all duration-200 hover:scale-105 border border-white/30 text-xs sm:text-sm">
+              <Video className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Virtual Tour</span>
+              <span className="sm:hidden">Tour</span>
             </button>
           </div>
           
           {/* Bottom Right - Expand Icon */}
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <div className="p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg">
-              <Maximize2 className="w-5 h-5 text-gray-700" />
+          <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <div className="p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg">
+              <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             </div>
           </div>
         </div>
         
         {/* Right Column - Image Grid */}
-        <div className="grid grid-cols-3 grid-rows-2 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 grid-rows-2 sm:grid-rows-2 gap-2 sm:gap-3 h-full">
           {visibleThumbnails.map((image, index) => (
             <div
               key={image.id}
-              className="relative rounded-lg overflow-hidden shadow-md cursor-pointer group"
+              className="relative rounded-lg overflow-hidden shadow-md cursor-pointer group h-full"
               onClick={() => openLightbox(index)}
             >
               <img
@@ -188,9 +189,9 @@ export default function PropertyImageGallery({
               {/* Last image overlay */}
               {index === 5 && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex flex-col items-center justify-center text-white">
-                  <Maximize2 className="w-8 h-8 mb-2" />
-                  <span className="text-2xl font-bold">+{totalImages - 6}</span>
-                  <span className="text-sm font-medium">More Photos</span>
+                  <Maximize2 className="w-6 h-6 sm:w-8 sm:h-8 mb-1 sm:mb-2" />
+                  <span className="text-xl sm:text-2xl font-bold">+{totalImages - 6}</span>
+                  <span className="text-xs sm:text-sm font-medium">More Photos</span>
                 </div>
               )}
             </div>
@@ -204,42 +205,42 @@ export default function PropertyImageGallery({
           {/* Close button */}
           <button
             onClick={closeLightbox}
-            className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 z-10 border border-white/20"
+            className="absolute top-2 right-2 sm:top-6 sm:right-6 p-2 sm:p-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 z-10 border border-white/20"
             aria-label="Close lightbox"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
           
           {/* Image counter */}
-          <div className="absolute top-6 left-6 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white font-medium border border-white/20">
+          <div className="absolute top-2 left-2 sm:top-6 sm:left-6 px-2 py-1 sm:px-4 sm:py-2 bg-white/10 backdrop-blur-sm rounded-full text-white text-sm sm:text-base font-medium border border-white/20">
             {currentImageIndex + 1} / {totalImages}
           </div>
           
           {/* Previous button */}
           <button
             onClick={goToPrevious}
-            className="absolute left-6 p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 border border-white/20"
+            className="absolute left-2 sm:left-6 p-2 sm:p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 border border-white/20"
             aria-label="Previous image"
           >
-            <ChevronLeft className="w-8 h-8" />
+            <ChevronLeft className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
           
           {/* Main image */}
-          <div className="w-full h-full flex flex-col items-center justify-center px-4 py-20">
+          <div className="w-full h-full flex flex-col items-center justify-center px-2 sm:px-4 py-16 sm:py-20">
             <div className="relative w-full h-full flex items-center justify-center">
               <img
                 src={propertyImages[currentImageIndex].url}
                 alt={propertyImages[currentImageIndex].alt}
                 className="max-w-none max-h-none w-auto h-auto object-contain rounded-lg shadow-2xl"
                 style={{ 
-                  maxWidth: 'calc(100vw - 8rem)', 
-                  maxHeight: 'calc(100vh - 12rem)',
+                  maxWidth: 'calc(100vw - 4rem)', 
+                  maxHeight: 'calc(100vh - 10rem)',
                   width: 'auto',
                   height: 'auto'
                 }}
               />
             </div>
-            <p className="text-center text-white/80 mt-4 text-lg font-medium">
+            <p className="text-center text-white/80 mt-2 sm:mt-4 text-sm sm:text-lg font-medium px-4">
               {propertyImages[currentImageIndex].alt}
             </p>
           </div>
@@ -247,19 +248,19 @@ export default function PropertyImageGallery({
           {/* Next button */}
           <button
             onClick={goToNext}
-            className="absolute right-6 p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 border border-white/20"
+            className="absolute right-2 sm:right-6 p-2 sm:p-4 bg-white/10 hover:bg-white/20 backdrop-blur-sm rounded-full text-white transition-all duration-200 border border-white/20"
             aria-label="Next image"
           >
-            <ChevronRight className="w-8 h-8" />
+            <ChevronRight className="w-6 h-6 sm:w-8 sm:h-8" />
           </button>
           
-          {/* Thumbnail strip */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 max-w-4xl overflow-x-auto z-10">
+          {/* Thumbnail strip - hidden on small screens */}
+          <div className="hidden sm:flex absolute bottom-6 left-1/2 -translate-x-1/2 gap-2 p-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 max-w-4xl overflow-x-auto z-10">
             {propertyImages.map((image, index) => (
               <button
                 key={image.id}
                 onClick={() => setCurrentImageIndex(index)}
-                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden transition-all duration-200 ${
+                className={`flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden transition-all duration-200 ${
                   currentImageIndex === index 
                     ? 'ring-3 ring-white scale-110' 
                     : 'opacity-60 hover:opacity-100'

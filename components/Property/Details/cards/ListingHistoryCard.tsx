@@ -83,9 +83,10 @@ export default function ListingHistoryCard({ property }: ListingHistoryCardProps
       </div>
 
       {isExpanded && (
-        <div className="px-6 pb-6">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-6">
           <div className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-3 p-3 bg-slate-50/50 rounded-lg text-xs font-bold text-slate-600 uppercase tracking-wider">
+            {/* Desktop Table Header - hidden on mobile */}
+            <div className="hidden md:grid grid-cols-6 gap-3 p-3 bg-slate-50/50 rounded-lg text-xs font-bold text-slate-600 uppercase tracking-wider">
               <div>Date Listed</div>
               <div>List Price</div>
               <div>Listing End</div>
@@ -95,29 +96,70 @@ export default function ListingHistoryCard({ property }: ListingHistoryCardProps
             </div>
 
             {listingHistory.map((entry, index) => (
-              <div key={index} className="grid grid-cols-1 md:grid-cols-6 gap-3 p-3 hover:bg-slate-50/30 transition-all duration-300 rounded-lg border-b border-slate-200/60 last:border-b-0">
-                <div className="text-sm font-semibold text-slate-800">
-                  {entry.dateListed ? formatDate(entry.dateListed) : 'N/A'}
+              <div key={index}>
+                {/* Desktop Row */}
+                <div className="hidden md:grid grid-cols-6 gap-3 p-3 hover:bg-slate-50/30 transition-all duration-300 rounded-lg border-b border-slate-200/60 last:border-b-0">
+                  <div className="text-sm font-semibold text-slate-800">
+                    {entry.dateListed ? formatDate(entry.dateListed) : 'N/A'}
+                  </div>
+                  
+                  <div className="text-sm font-semibold text-slate-800">
+                    {entry.listPrice != null ? formatPrice(entry.listPrice) : 'N/A'}
+                  </div>
+                  
+                  <div className="text-sm font-semibold text-slate-800">
+                    {entry.listingEnd && entry.listingEnd !== 'Active' ? formatDate(entry.listingEnd) : 'Active'}
+                  </div>
+                  
+                  <div>
+                    {getStatusBadge(entry.status)}
+                  </div>
+                  
+                  <div className="text-sm font-semibold text-slate-800">
+                    {entry.soldPrice != null ? formatPrice(entry.soldPrice) : 'N/A'}
+                  </div>
+                  
+                  <div className="text-sm font-semibold text-slate-800 font-mono">
+                    {entry.mlsNumber}
+                  </div>
                 </div>
-                
-                <div className="text-sm font-semibold text-slate-800">
-                  {entry.listPrice != null ? formatPrice(entry.listPrice) : 'N/A'}
-                </div>
-                
-                <div className="text-sm font-semibold text-slate-800">
-                  {entry.listingEnd && entry.listingEnd !== 'Active' ? formatDate(entry.listingEnd) : 'Active'}
-                </div>
-                
-                <div>
-                  {getStatusBadge(entry.status)}
-                </div>
-                
-                <div className="text-sm font-semibold text-slate-800">
-                  {entry.soldPrice != null ? formatPrice(entry.soldPrice) : 'N/A'}
-                </div>
-                
-                <div className="text-sm font-semibold text-slate-800 font-mono">
-                  {entry.mlsNumber}
+
+                {/* Mobile Card */}
+                <div className="md:hidden p-3 bg-white rounded-lg border border-slate-200/60 hover:shadow-md transition-shadow">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold text-slate-600 uppercase">MLS# {entry.mlsNumber}</span>
+                    {getStatusBadge(entry.status)}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">Date Listed</div>
+                      <div className="text-sm font-semibold text-slate-800">
+                        {entry.dateListed ? formatDate(entry.dateListed) : 'N/A'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">List Price</div>
+                      <div className="text-sm font-semibold text-slate-800">
+                        {entry.listPrice != null ? formatPrice(entry.listPrice) : 'N/A'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">Listing End</div>
+                      <div className="text-sm font-semibold text-slate-800">
+                        {entry.listingEnd && entry.listingEnd !== 'Active' ? formatDate(entry.listingEnd) : 'Active'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <div className="text-[10px] text-slate-500 font-medium uppercase mb-0.5">Sold Price</div>
+                      <div className="text-sm font-semibold text-slate-800">
+                        {entry.soldPrice != null ? formatPrice(entry.soldPrice) : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
