@@ -4,7 +4,28 @@ import React, { useState, useRef, useEffect } from 'react';
 import { X, Search, MapPin, Home, DollarSign, Bed, Bath, ChevronDown, ChevronUp, Calendar, Building2, Ruler, Car, Wrench, Clock, DoorOpen, Check } from 'lucide-react';
 import { useFilters } from './Search';
 
-const propertyTypes = ['House', 'Apartment', 'Condo', 'Townhouse', 'Semi-Detached', 'Detached', 'Duplex', 'Commercial', 'Land'];
+const propertyTypes = [
+  'Detached',
+  'Semi-Detached',
+  'Townhouse (Row)',
+  'Link House',
+  'Rural / Farm',
+  'Condo Apartment',
+  'Condo Townhouse',
+  'Detached Condo',
+  'Semi-Detached Condo',
+  'Specialty Condos',
+  'Duplex',
+  'Triplex',
+  'Multiplex',
+  'Cottage',
+  'Mobile / Manufactured Home',
+  'Vacant Land',
+  'Vacant Land Condo',
+  'Parking / Locker',
+  'Individual Units (Room / Upper)',
+  'Timeshare',
+];
 const cities = ['Toronto', 'Mississauga', 'Brampton', 'Vaughan', 'Markham', 'Richmond Hill', 'Oakville', 'Burlington'];
 const houseStyles = ['2-Storey', 'Bungalow', 'Backsplit', 'Sidesplit', 'Raised Bungalow', 'Bungalow-Loft', '3-Storey'];
 const basementFeatures = ['Finished', 'Unfinished', 'Walk-Out', 'Separate Entrance', 'Apartment'];
@@ -306,6 +327,288 @@ function CityCarousel({ cities, selectedCities, onToggleCity, onSelectAll }: Cit
   );
 }
 
+interface PropertyTypeCarouselProps {
+  propertyTypes: string[];
+  selectedTypes: string[];
+  onToggleType: (type: string) => void;
+  onSelectAll: () => void;
+}
+
+function PropertyTypeCarousel({ propertyTypes, selectedTypes, onToggleType, onSelectAll }: PropertyTypeCarouselProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [velocity, setVelocity] = useState(0);
+  const animationFrameRef = useRef<number | null>(null);
+  
+  // Create extended array with duplicates for infinite loop
+  const allTypesWithAll = ['All Property Types', ...propertyTypes];
+  const extendedTypes = [...allTypesWithAll, ...allTypesWithAll, ...allTypesWithAll];
+  
+  const itemWidth = 160; // Approximate width of each chip
+  const totalItems = allTypesWithAll.length;
+  
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    // Start in the middle set
+    container.scrollLeft = itemWidth * totalItems;
+  }, []);
+  
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || isDragging) return;
+    
+    const animate = () => {
+      if (Math.abs(velocity) > 0.1) {
+        container.scrollLeft += velocity;
+        setVelocity(velocity * 0.95); // Deceleration
+        
+        // Handle infinite loop
+        handleInfiniteScroll();
+        
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+    
+    if (Math.abs(velocity) > 0.1) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+    }
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [velocity, isDragging]);
+  
+  const handleInfiniteScroll = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const scrollPos = container.scrollLeft;
+    const sectionWidth = itemWidth * totalItems;
+    
+    // If scrolled past the second set, jump back to first set
+    if (scrollPos >= sectionWidth * 2) {
+      container.scrollLeft = scrollPos - sectionWidth;
+    }
+    // If scrolled before the first set, jump to second set
+    else if (scrollPos < sectionWidth * 0.5) {
+      container.scrollLeft = scrollPos + sectionWidth;
+    }
+  };
+  
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    setIsDragging(true);
+    setStartX(e.pageX - container.offsetLeft);
+    setScrollLeft(container.scrollLeft);
+    setVelocity(0);
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+  };
+  
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    setIsDragging(true);
+    setStartX(e.touches[0].pageX - container.offsetLeft);
+    setScrollLeft(container.scrollLeft);
+    setVelocity(0);
+    
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const x = e.pageX - container.offsetLeft;
+    const walk = (x - startX) * 2;
+    const newScrollLeft = scrollLeft - walk;
+    
+    setVelocity(container.scrollLeft - newScrollLeft);
+    container.scrollLeft = newScrollLeft;
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    
+    const x = e.touches[0].pageX - container.offsetLeft;
+    const walk = (x - startX) * 2;
+    const newScrollLeft = scrollLeft - walk;
+    
+    setVelocity(container.scrollLeft - newScrollLeft);
+    container.scrollLeft = newScrollLeft;
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+  
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+  
+  const handleTypeClick = (type: string) => {
+    if (type === 'All Property Types') {
+      onSelectAll();
+    } else {
+      onToggleType(type);
+    }
+  };
+  
+  const isTypeSelected = (type: string) => {
+    if (type === 'All Property Types') {
+      return selectedTypes.length === 0;
+    }
+    return selectedTypes.includes(type);
+  };
+  
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <label style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px', 
+        fontSize: '14px', 
+        fontWeight: '600', 
+        color: '#475569', 
+        marginBottom: '12px',
+        padding: '0 12px'
+      }}>
+        <Home size={18} /> Property Type
+        {selectedTypes.length > 0 && (
+          <span style={{
+            marginLeft: 'auto',
+            fontSize: '12px',
+            fontWeight: '700',
+            color: 'white',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            padding: '4px 10px',
+            borderRadius: '12px',
+          }}>
+            {selectedTypes.length} selected
+          </span>
+        )}
+      </label>
+      
+      {/* Carousel Container */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        overflow: 'hidden',
+        background: 'linear-gradient(to right, rgba(248,250,252,0.9) 0%, transparent 10%, transparent 90%, rgba(248,250,252,0.9) 100%)',
+        padding: '8px 0',
+        borderRadius: '16px',
+      }}>
+        <div
+          ref={scrollContainerRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            display: 'flex',
+            gap: '10px',
+            overflowX: 'scroll',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            padding: '4px 16px',
+            scrollBehavior: isDragging ? 'auto' : 'smooth',
+          }}
+        >
+          {extendedTypes.map((type, index) => {
+            const isSelected = isTypeSelected(type);
+            return (
+              <button
+                key={`${type}-${index}`}
+                onClick={() => handleTypeClick(type)}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  padding: '12px 24px',
+                  background: isSelected 
+                    ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                    : 'white',
+                  color: isSelected ? 'white' : '#475569',
+                  border: isSelected ? 'none' : '2px solid #e2e8f0',
+                  borderRadius: '24px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: isSelected 
+                    ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                    : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                  pointerEvents: isDragging ? 'none' : 'auto',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected && !isDragging) {
+                    e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                  }
+                }}
+              >
+                {type}
+              </button>
+            );
+          })}
+        </div>
+        
+        {/* Hide scrollbar */}
+        <style>{`
+          div::-webkit-scrollbar {
+            display: none;
+          }
+        `}</style>
+      </div>
+      
+      {/* Swipe hint */}
+      <div style={{
+        textAlign: 'center',
+        fontSize: '12px',
+        color: '#94a3b8',
+        marginTop: '8px',
+        fontWeight: '500',
+      }}>
+        ← Swipe to explore more types →
+      </div>
+    </div>
+  );
+}
+
 interface MobileFiltersModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -316,6 +619,7 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [priceRangeExpanded, setPriceRangeExpanded] = useState(false);
   
   const [filters, setFilters] = useState({
     transactionStatus: contextFilters.status || 'buy',
@@ -327,8 +631,10 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
     priceMax: contextFilters.priceRange?.max?.toString() || '',
     bedroomsMin: contextFilters.bedrooms?.min?.toString() || '',
     bedroomsMax: contextFilters.bedrooms?.max?.toString() || '',
+    bedroomsExpanded: false,
     bathroomsMin: contextFilters.bathrooms?.min?.toString() || '',
     bathroomsMax: contextFilters.bathrooms?.max?.toString() || '',
+    bathroomsExpanded: false,
     // Advanced
     propertyClass: ['Freehold', 'Condo'] as string[],
     sqftMin: '',
@@ -370,8 +676,10 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
       priceMax: '',
       bedroomsMin: '',
       bedroomsMax: '',
+      bedroomsExpanded: false,
       bathroomsMin: '',
       bathroomsMax: '',
+      bathroomsExpanded: false,
       propertyClass: ['Freehold', 'Condo'] as string[],
       sqftMin: '',
       sqftMax: '',
@@ -931,70 +1239,17 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
               />
             </div>
 
-            {/* Property Type - Enhanced */}
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '8px', 
-                fontSize: '14px', 
-                fontWeight: '600', 
-                color: '#475569', 
-                marginBottom: '12px' 
-              }}>
-                <Home size={18} /> Property Type
-                {filters.propertyTypes.length > 0 && (
-                  <span style={{
-                    marginLeft: 'auto',
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    color: 'white',
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    padding: '4px 10px',
-                    borderRadius: '12px',
-                  }}>
-                    {filters.propertyTypes.length} selected
-                  </span>
-                )}
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {propertyTypes.map(type => {
-                  const isSelected = filters.propertyTypes.includes(type);
-                  return (
-                    <button 
-                      key={type} 
-                      onClick={() => toggleArrayFilter('propertyTypes', type)} 
-                      style={{
-                        padding: '14px 8px',
-                        background: isSelected 
-                          ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
-                          : 'white',
-                        color: isSelected ? 'white' : '#475569',
-                        border: isSelected ? 'none' : '2px solid #e2e8f0',
-                        borderRadius: '12px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isSelected 
-                          ? '0 4px 16px rgba(102, 126, 234, 0.4)' 
-                          : '0 2px 6px rgba(0, 0, 0, 0.04)',
-                        transform: isSelected ? 'scale(0.98)' : 'scale(1)',
-                        textAlign: 'center',
-                        minHeight: '46px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
-              </div>
+            {/* Property Type - Swipable Carousel */}
+            <div style={{ margin: '0 -12px' }}>
+              <PropertyTypeCarousel 
+                propertyTypes={propertyTypes}
+                selectedTypes={filters.propertyTypes}
+                onToggleType={(type) => toggleArrayFilter('propertyTypes', type)}
+                onSelectAll={() => updateFilter('propertyTypes', [])}
+              />
             </div>
 
-            {/* Price Range - Enhanced with Presets */}
+            {/* Price Range - Redesigned with Slider */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{ 
                 display: 'flex', 
@@ -1011,114 +1266,269 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
                   : 'Price Range'}
               </label>
               
-              {/* Quick Presets */}
-              <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: '8px', 
-                marginBottom: '12px',
-                padding: '12px',
-                background: '#f8fafc',
-                borderRadius: '12px',
+              {/* Price Range Display */}
+              <div style={{
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '16px',
+                marginBottom: '20px',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               }}>
-                {(filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? [
-                  { label: 'Under $2K', min: '', max: '2000' },
-                  { label: '$2K-$3K', min: '2000', max: '3000' },
-                  { label: '$3K-$4K', min: '3000', max: '4000' },
-                  { label: '$4K+', min: '4000', max: '' },
-                ] : [
-                  { label: 'Under $500K', min: '', max: '500000' },
-                  { label: '$500K-$1M', min: '500000', max: '1000000' },
-                  { label: '$1M-$2M', min: '1000000', max: '2000000' },
-                  { label: '$2M+', min: '2000000', max: '' },
-                ]).map(preset => {
-                  const isActive = filters.priceMin === preset.min && filters.priceMax === preset.max;
-                  return (
-                    <button
-                      key={preset.label}
-                      onClick={() => {
-                        updateFilter('priceMin', preset.min);
-                        updateFilter('priceMax', preset.max);
-                      }}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  color: 'white',
+                }}>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Min
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.priceMin ? `$${parseInt(filters.priceMin).toLocaleString()}` : 'Any'}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', opacity: 0.7, padding: '0 12px' }}>
+                    →
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Max
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.priceMax ? `$${parseInt(filters.priceMax).toLocaleString()}` : 'Any'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dual Range Slider */}
+              <div style={{ padding: '0 8px', marginBottom: '16px' }}>
+                <div style={{ position: 'relative', height: '40px' }}>
+                  {/* Slider Track */}
+                  <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '6px',
+                    background: '#e2e8f0',
+                    borderRadius: '3px',
+                    top: '17px',
+                  }} />
+                  
+                  {/* Active Track */}
+                  <div style={{
+                    position: 'absolute',
+                    height: '6px',
+                    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '3px',
+                    top: '17px',
+                    left: `${(parseInt(filters.priceMin || '0') / (filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? 10000 : 5000000)) * 100}%`,
+                    right: `${100 - (parseInt(filters.priceMax || (filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000')) / (filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? 10000 : 5000000)) * 100}%`,
+                  }} />
+
+                  {/* Max Range Input - Placed First */}
+                  <input
+                    type="range"
+                    className="range-slider range-max"
+                    min="0"
+                    max={filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000'}
+                    step={filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '100' : '50000'}
+                    value={filters.priceMax || (filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000')}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const minVal = parseInt(filters.priceMin || '0');
+                      if (parseInt(value) >= minVal) {
+                        const maxValue = filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000';
+                        updateFilter('priceMax', value === maxValue ? '' : value);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 4,
+                      cursor: 'pointer',
+                    }}
+                  />
+
+                  {/* Min Range Input - Placed Second */}
+                  <input
+                    type="range"
+                    className="range-slider range-min"
+                    min="0"
+                    max={filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000'}
+                    step={filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '100' : '50000'}
+                    value={filters.priceMin || '0'}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const maxVal = parseInt(filters.priceMax || (filters.transactionStatus === 'lease' || filters.transactionStatus === 'leased' ? '10000' : '5000000'));
+                      if (parseInt(value) <= maxVal) {
+                        updateFilter('priceMin', value === '0' ? '' : value);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 5,
+                      cursor: 'pointer',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Expand/Collapse Button for Custom Range */}
+              <button
+                onClick={() => setPriceRangeExpanded(!priceRangeExpanded)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: priceRangeExpanded ? '#f0f4ff' : '#f8fafc',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#667eea',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  marginBottom: priceRangeExpanded ? '12px' : '0',
+                }}
+              >
+                <span>Manual Entry</span>
+                {priceRangeExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+
+              {/* Custom Range Inputs - Collapsible */}
+              {priceRangeExpanded && (
+                <div 
+                  style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '12px',
+                    animation: 'slideDown 0.3s ease-out',
+                  }}
+                >
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Min
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="$ Min" 
+                      value={filters.priceMin} 
+                      onChange={(e) => updateFilter('priceMin', e.target.value)} 
                       style={{
-                        padding: '10px 16px',
-                        background: isActive ? '#667eea' : 'white',
-                        color: isActive ? 'white' : '#64748b',
-                        border: isActive ? 'none' : '2px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '13px',
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '15px',
                         fontWeight: '600',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 8px rgba(102, 126, 234, 0.3)' : 'none',
-                      }}
-                    >
-                      {preset.label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Custom Range Inputs */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Min
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="$ Min" 
-                    value={filters.priceMin} 
-                    onChange={(e) => updateFilter('priceMin', e.target.value)} 
-                    style={{
-                      width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
-                  />
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Max
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="$ Max" 
+                      value={filters.priceMax} 
+                      onChange={(e) => updateFilter('priceMax', e.target.value)} 
+                      style={{
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Max
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="$ Max" 
-                    value={filters.priceMax} 
-                    onChange={(e) => updateFilter('priceMax', e.target.value)} 
-                    style={{
-                      width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
-                  />
-                </div>
-              </div>
+              )}
             </div>
+            
+            <style>{`
+              .range-slider {
+                pointer-events: none;
+              }
+              
+              .range-slider::-webkit-slider-thumb {
+                pointer-events: auto;
+                appearance: none;
+                -webkit-appearance: none;
+                width: 24px;
+                height: 24px;
+                background: white;
+                border: 3px solid #667eea;
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+                transition: all 0.2s ease;
+              }
+              
+              .range-slider::-webkit-slider-thumb:hover {
+                transform: scale(1.2);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+              }
+              
+              .range-slider::-webkit-slider-thumb:active {
+                transform: scale(1.1);
+                background: #667eea;
+              }
+              
+              .range-slider::-moz-range-thumb {
+                pointer-events: auto;
+                width: 24px;
+                height: 24px;
+                background: white;
+                border: 3px solid #667eea;
+                border-radius: 50%;
+                cursor: pointer;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+                transition: all 0.2s ease;
+              }
+              
+              .range-slider::-moz-range-thumb:hover {
+                transform: scale(1.2);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+              }
+              
+              .range-slider::-moz-range-thumb:active {
+                transform: scale(1.1);
+                background: #667eea;
+              }
+            `}</style>
 
-            {/* Bedrooms - Enhanced with Quick Select */}
+            {/* Bedrooms - Redesigned with Slider */}
             <div style={{ marginBottom: '24px' }}>
               <label style={{ 
                 display: 'flex', 
@@ -1132,112 +1542,216 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
                 <Bed size={18} /> Bedrooms
               </label>
               
-              {/* Quick Select Chips */}
-              <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: '8px', 
-                marginBottom: '12px',
-                padding: '12px',
-                background: '#f8fafc',
-                borderRadius: '12px',
+              {/* Bedrooms Range Display */}
+              <div style={{
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '16px',
+                marginBottom: '20px',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               }}>
-                {['Any', '1+', '2+', '3+', '4+', '5+'].map(option => {
-                  const minVal = option === 'Any' ? '' : option.replace('+', '');
-                  const isActive = (option === 'Any' && !filters.bedroomsMin) || 
-                                  (filters.bedroomsMin === minVal && !filters.bedroomsMax);
-                  return (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        if (option === 'Any') {
-                          updateFilter('bedroomsMin', '');
-                          updateFilter('bedroomsMax', '');
-                        } else {
-                          updateFilter('bedroomsMin', minVal);
-                          updateFilter('bedroomsMax', '');
-                        }
-                      }}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  color: 'white',
+                }}>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Min
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.bedroomsMin ? filters.bedroomsMin : 'Any'}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', opacity: 0.7, padding: '0 12px' }}>
+                    →
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Max
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.bedroomsMax ? filters.bedroomsMax : 'Any'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dual Range Slider */}
+              <div style={{ padding: '0 8px', marginBottom: '16px' }}>
+                <div style={{ position: 'relative', height: '40px' }}>
+                  {/* Slider Track */}
+                  <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '6px',
+                    background: '#e2e8f0',
+                    borderRadius: '3px',
+                    top: '17px',
+                  }} />
+                  
+                  {/* Active Track */}
+                  <div style={{
+                    position: 'absolute',
+                    height: '6px',
+                    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '3px',
+                    top: '17px',
+                    left: `${(parseInt(filters.bedroomsMin || '0') / 10) * 100}%`,
+                    right: `${100 - (parseInt(filters.bedroomsMax || '10') / 10) * 100}%`,
+                  }} />
+
+                  {/* Max Range Input - Placed First */}
+                  <input
+                    type="range"
+                    className="range-slider range-max"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value={filters.bedroomsMax || '10'}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const minVal = parseInt(filters.bedroomsMin || '0');
+                      if (parseInt(value) >= minVal) {
+                        updateFilter('bedroomsMax', value === '10' ? '' : value);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 4,
+                      cursor: 'pointer',
+                    }}
+                  />
+
+                  {/* Min Range Input - Placed Second */}
+                  <input
+                    type="range"
+                    className="range-slider range-min"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value={filters.bedroomsMin || '0'}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const maxVal = parseInt(filters.bedroomsMax || '10');
+                      if (parseInt(value) <= maxVal) {
+                        updateFilter('bedroomsMin', value === '0' ? '' : value);
+                      }
+                    }}
+                    style={{
+                      position: 'absolute',
+                      width: '100%',
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 5,
+                      cursor: 'pointer',
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Expand/Collapse Button for Custom Range */}
+              <button
+                onClick={() => updateFilter('bedroomsExpanded', !filters.bedroomsExpanded)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: filters.bedroomsExpanded ? '#f0f4ff' : '#f8fafc',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#667eea',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  marginBottom: filters.bedroomsExpanded ? '12px' : '0',
+                }}
+              >
+                <span>Manual Entry</span>
+                {filters.bedroomsExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+
+              {/* Custom Range Inputs - Collapsible */}
+              {filters.bedroomsExpanded && (
+                <div 
+                  style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '12px',
+                    animation: 'slideDown 0.3s ease-out',
+                  }}
+                >
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Min
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="Min" 
+                      value={filters.bedroomsMin} 
+                      onChange={(e) => updateFilter('bedroomsMin', e.target.value)} 
                       style={{
-                        padding: '12px 20px',
-                        background: isActive ? '#667eea' : 'white',
-                        color: isActive ? 'white' : '#64748b',
-                        border: isActive ? 'none' : '2px solid #e2e8f0',
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
                         borderRadius: '12px',
                         fontSize: '15px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 10px rgba(102, 126, 234, 0.3)' : 'none',
-                        minWidth: '60px',
-                      }}
-                    >
-                      {option}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Custom Range */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Min
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="Min" 
-                    value={filters.bedroomsMin} 
-                    onChange={(e) => updateFilter('bedroomsMin', e.target.value)} 
-                    style={{
-                      width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
-                  />
+                        fontWeight: '600',
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Max
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="Max" 
+                      value={filters.bedroomsMax} 
+                      onChange={(e) => updateFilter('bedroomsMax', e.target.value)} 
+                      style={{
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Max
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="Max" 
-                    value={filters.bedroomsMax} 
-                    onChange={(e) => updateFilter('bedroomsMax', e.target.value)} 
-                    style={{
-                      width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Bathrooms - Enhanced with Quick Select */}
+            {/* Bathrooms - Redesigned with Slider */}
             <div>
               <label style={{ 
                 display: 'flex', 
@@ -1251,109 +1765,213 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
                 <Bath size={18} /> Bathrooms
               </label>
               
-              {/* Quick Select Chips */}
-              <div style={{ 
-                display: 'flex', 
-                flexWrap: 'wrap', 
-                gap: '8px', 
-                marginBottom: '12px',
-                padding: '12px',
-                background: '#f8fafc',
-                borderRadius: '12px',
+              {/* Bathrooms Range Display */}
+              <div style={{
+                padding: '16px 20px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '16px',
+                marginBottom: '20px',
+                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               }}>
-                {['Any', '1+', '2+', '3+', '4+'].map(option => {
-                  const minVal = option === 'Any' ? '' : option.replace('+', '');
-                  const isActive = (option === 'Any' && !filters.bathroomsMin) || 
-                                  (filters.bathroomsMin === minVal && !filters.bathroomsMax);
-                  return (
-                    <button
-                      key={option}
-                      onClick={() => {
-                        if (option === 'Any') {
-                          updateFilter('bathroomsMin', '');
-                          updateFilter('bathroomsMax', '');
-                        } else {
-                          updateFilter('bathroomsMin', minVal);
-                          updateFilter('bathroomsMax', '');
-                        }
-                      }}
-                      style={{
-                        padding: '12px 20px',
-                        background: isActive ? '#667eea' : 'white',
-                        color: isActive ? 'white' : '#64748b',
-                        border: isActive ? 'none' : '2px solid #e2e8f0',
-                        borderRadius: '12px',
-                        fontSize: '15px',
-                        fontWeight: '700',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isActive ? '0 2px 10px rgba(102, 126, 234, 0.3)' : 'none',
-                        minWidth: '60px',
-                      }}
-                    >
-                      {option}
-                    </button>
-                  );
-                })}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  color: 'white',
+                }}>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Min
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.bathroomsMin ? filters.bathroomsMin : 'Any'}
+                    </div>
+                  </div>
+                  <div style={{ fontSize: '20px', fontWeight: '700', opacity: 0.7, padding: '0 12px' }}>
+                    →
+                  </div>
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                      Max
+                    </div>
+                    <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                      {filters.bathroomsMax ? filters.bathroomsMax : 'Any'}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Custom Range */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Min
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="Min" 
-                    value={filters.bathroomsMin} 
-                    onChange={(e) => updateFilter('bathroomsMin', e.target.value)} 
+              {/* Dual Range Slider */}
+              <div style={{ padding: '0 8px', marginBottom: '16px' }}>
+                <div style={{ position: 'relative', height: '40px' }}>
+                  {/* Slider Track */}
+                  <div style={{
+                    position: 'absolute',
+                    width: '100%',
+                    height: '6px',
+                    background: '#e2e8f0',
+                    borderRadius: '3px',
+                    top: '17px',
+                  }} />
+                  
+                  {/* Active Track */}
+                  <div style={{
+                    position: 'absolute',
+                    height: '6px',
+                    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '3px',
+                    top: '17px',
+                    left: `${(parseInt(filters.bathroomsMin || '0') / 10) * 100}%`,
+                    right: `${100 - (parseInt(filters.bathroomsMax || '10') / 10) * 100}%`,
+                  }} />
+
+                  {/* Max Range Input - Placed First */}
+                  <input
+                    type="range"
+                    className="range-slider range-max"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value={filters.bathroomsMax || '10'}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const minVal = parseInt(filters.bathroomsMin || '0');
+                      if (parseInt(value) >= minVal) {
+                        updateFilter('bathroomsMax', value === '10' ? '' : value);
+                      }
+                    }}
                     style={{
+                      position: 'absolute',
                       width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 4,
+                      cursor: 'pointer',
+                    }}
                   />
-                </div>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    fontSize: '12px', 
-                    fontWeight: '600', 
-                    color: '#64748b', 
-                    marginBottom: '6px' 
-                  }}>
-                    Max
-                  </label>
-                  <input 
-                    type="number" 
-                    placeholder="Max" 
-                    value={filters.bathroomsMax} 
-                    onChange={(e) => updateFilter('bathroomsMax', e.target.value)} 
+
+                  {/* Min Range Input - Placed Second */}
+                  <input
+                    type="range"
+                    className="range-slider range-min"
+                    min="0"
+                    max="10"
+                    step="1"
+                    value={filters.bathroomsMin || '0'}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const maxVal = parseInt(filters.bathroomsMax || '10');
+                      if (parseInt(value) <= maxVal) {
+                        updateFilter('bathroomsMin', value === '0' ? '' : value);
+                      }
+                    }}
                     style={{
+                      position: 'absolute',
                       width: '100%',
-                      padding: '16px 12px',
-                      background: 'white',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      color: '#1e293b',
-                    }} 
+                      height: '40px',
+                      background: 'transparent',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      zIndex: 5,
+                      cursor: 'pointer',
+                    }}
                   />
                 </div>
               </div>
+
+              {/* Expand/Collapse Button for Custom Range */}
+              <button
+                onClick={() => updateFilter('bathroomsExpanded', !filters.bathroomsExpanded)}
+                style={{
+                  width: '100%',
+                  padding: '14px 16px',
+                  background: filters.bathroomsExpanded ? '#f0f4ff' : '#f8fafc',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '12px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#667eea',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s ease',
+                  marginBottom: filters.bathroomsExpanded ? '12px' : '0',
+                }}
+              >
+                <span>Manual Entry</span>
+                {filters.bathroomsExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </button>
+
+              {/* Custom Range Inputs - Collapsible */}
+              {filters.bathroomsExpanded && (
+                <div 
+                  style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '12px',
+                    animation: 'slideDown 0.3s ease-out',
+                  }}
+                >
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Min
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="Min" 
+                      value={filters.bathroomsMin} 
+                      onChange={(e) => updateFilter('bathroomsMin', e.target.value)} 
+                      style={{
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
+                  <div>
+                    <label style={{ 
+                      display: 'block', 
+                      fontSize: '12px', 
+                      fontWeight: '600', 
+                      color: '#64748b', 
+                      marginBottom: '6px' 
+                    }}>
+                      Max
+                    </label>
+                    <input 
+                      type="number" 
+                      placeholder="Max" 
+                      value={filters.bathroomsMax} 
+                      onChange={(e) => updateFilter('bathroomsMax', e.target.value)} 
+                      style={{
+                        width: '100%',
+                        padding: '16px 12px',
+                        background: 'white',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        color: '#1e293b',
+                      }} 
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
