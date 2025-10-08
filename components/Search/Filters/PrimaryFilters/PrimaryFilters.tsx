@@ -10,7 +10,7 @@ export default function PrimaryFilters() {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-[22rem] flex-shrink-0">
+          <div className="w-[28rem] flex-shrink-0">
             <SearchBar />
           </div>
           <StatusFilters />

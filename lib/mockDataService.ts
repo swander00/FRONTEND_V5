@@ -940,15 +940,23 @@ export async function getPropertiesWithPagination(
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 300));
   
+  console.log('🔍 getPropertiesWithPagination called with:', { page, pageSize, filters });
+  console.log('📊 Total mock properties available:', mockProperties.length);
+  
   let filteredProperties = [...mockProperties];
   
   // Apply filters if provided
   if (filters) {
+    console.log('🔧 Applying filters...');
     // Filter by status
     if (filters.status === 'buy') {
+      console.log('🏠 Filtering for buy properties...');
       filteredProperties = filteredProperties.filter(p => p.status === 'buy');
+      console.log(`✅ Found ${filteredProperties.length} buy properties`);
     } else if (filters.status === 'lease') {
+      console.log('🏢 Filtering for lease properties...');
       filteredProperties = filteredProperties.filter(p => p.status === 'lease');
+      console.log(`✅ Found ${filteredProperties.length} lease properties`);
     }
     
     // Filter by city
@@ -1008,6 +1016,8 @@ export async function getPropertiesWithPagination(
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
+  
+  console.log(`📋 Final result: ${paginatedProperties.length} properties on page ${page} of ${totalPages} (${totalCount} total)`);
   
   return {
     properties: paginatedProperties,

@@ -118,33 +118,23 @@ export default function FilterChips() {
             <button
               onClick={handleOpenSaveDialog}
               className="ml-3 px-4 py-2 text-sm font-semibold text-white 
-                         bg-gradient-to-r from-emerald-500 to-green-600 
-                         hover:from-emerald-600 hover:to-green-700 
-                         rounded-full shadow-md hover:shadow-lg
-                         transition-all duration-300 ease-in-out 
-                         border border-emerald-600 hover:border-emerald-700
-                         flex items-center gap-2 group relative overflow-hidden
-                         transform hover:scale-105 active:scale-95"
+                         bg-emerald-600 hover:bg-emerald-700 
+                         rounded-full shadow-sm hover:shadow-md
+                         transition-all duration-200 
+                         flex items-center gap-2 group
+                         focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+              aria-label="Save current search"
             >
-              {/* Animated background effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 
-                             opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              
-              {/* Icon with subtle animation */}
-              <Save className="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
-              
-              {/* Text with slight glow effect */}
-              <span className="relative drop-shadow-sm">Save Search</span>
-              
-              {/* Subtle pulse effect for extra attention */}
-              <div className="absolute inset-0 rounded-full bg-white/20 
-                             animate-pulse opacity-30" />
+              <Save className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" 
+                    aria-hidden="true" />
+              <span>Save Search</span>
             </button>
             <button
               onClick={clearAllFilters}
               className="px-3 py-1.5 text-xs font-medium text-gray-600 
                          hover:text-white hover:bg-gray-600 rounded-full 
                          transition-all duration-200"
+              aria-label="Clear all filters"
             >
               Clear all
             </button>

@@ -75,7 +75,7 @@ export default function QuickFiltersBar() {
   return (
     <div className="w-full">
       {/* Container with subtle background for visual grouping */}
-      <div className="bg-gray-50/50 border border-gray-100 rounded-xl p-2 transition-all duration-200 hover:bg-gray-50/80">
+      <div className="bg-gray-50/50 border border-gray-100 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-50/80">
         {/* Filter buttons container - now spans full width */}
         <div className="w-full">
           <div className="flex flex-wrap items-center gap-2 justify-start">

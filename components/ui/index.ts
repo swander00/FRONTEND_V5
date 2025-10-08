@@ -27,7 +27,7 @@ export * from './menubar';
 export * from './navigation-menu';
 export * from './pagination';
 export * from './popover';
-export * from './progress';
+// export * from './progress';  // Temporarily disabled due to build issue
 export * from './radio-group';
 export * from './resizable';
 export * from './scroll-area';
