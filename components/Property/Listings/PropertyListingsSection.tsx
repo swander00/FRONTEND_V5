@@ -3,10 +3,10 @@
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import PropertyGrid from './PropertyGrid';
-import { MapView } from '@/components/Search';
-import { PropertyCountBar } from '@/components/Property';
+import { MapView, MobileMapView } from '@/components/Search';
+import { PropertyCountBar, MobileSortBar } from '@/components/Property';
 import { useFilters } from '@/components/Search';
-import { usePropertyPagination } from '@/hooks';
+import { usePropertyPagination, useIsMobile } from '@/hooks';
 import { Container } from '@/components/ui/Layout';
 
 
@@ -72,6 +72,7 @@ export default function PropertyListingsSection({
   const searchTerm = searchParams?.get('search');
   const { filters } = useFilters();
   const [retryCount, setRetryCount] = useState(0);
+  const isMobile = useIsMobile();
   
   // Transform FilterState to FilterCriteria - memoized to prevent unnecessary re-renders
   const transformedFilters = useMemo(() => ({
@@ -153,7 +154,11 @@ export default function PropertyListingsSection({
   return (
     <>
       <PaginationContext.Provider value={{ totalCount, currentPage, totalPages }}>
+        {/* Desktop Count Bar */}
         <PropertyCountBar />
+        
+        {/* Mobile Sort Bar */}
+        <MobileSortBar />
         
         {/* Search Results Header */}
         {searchTerm && (
@@ -203,12 +208,22 @@ export default function PropertyListingsSection({
           
           {/* Property Listings */}
           {view === 'map' ? (
-            <MapView 
-              properties={properties}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={goToPage}
-            />
+            isMobile ? (
+              <MobileMapView 
+                properties={properties}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalCount={totalCount}
+                onPageChange={goToPage}
+              />
+            ) : (
+              <MapView 
+                properties={properties}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={goToPage}
+              />
+            )
           ) : (
             <PropertyGrid 
               properties={properties}

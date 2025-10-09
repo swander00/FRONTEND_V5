@@ -12,7 +12,7 @@ export { default as MobileFiltersButton } from './Filters/MobileFiltersButton';
 export { FilterProvider, useFilters } from './Filters/FilterContext/FilterContext';
 
 // MapView
-export { default as MapView } from './MapView';
+export { default as MapView, MobileMapView } from './MapView';
 
 // Re-export all filter subcomponents for granular access
 export * from './Filters/PrimaryFilters';

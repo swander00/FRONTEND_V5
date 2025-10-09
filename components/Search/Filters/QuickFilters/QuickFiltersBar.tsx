@@ -74,63 +74,53 @@ export default function QuickFiltersBar() {
 
   return (
     <div className="w-full">
-      {/* Container with subtle background for visual grouping */}
-      <div className="bg-gray-50/50 border border-gray-100 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-50/80">
-        {/* Filter buttons container - now spans full width */}
-        <div className="w-full">
-          <div className="flex flex-wrap items-center gap-2 justify-start">
-            {visibleFilters.map((filter) => {
-              const isActive = activeFilters.includes(filter.id);
-              return (
-                <button
-                  key={filter.id}
-                  onClick={() => toggleFilter(filter.id)}
-                  className={`
-                    inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full
-                    transition-all duration-200 cursor-pointer whitespace-nowrap
-                    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                    ${isActive 
-                      ? 'bg-blue-600 text-white shadow-sm hover:bg-blue-700 hover:shadow-md' 
-                      : 'text-gray-700 hover:bg-blue-600 hover:text-white hover:shadow-sm border border-transparent hover:border-blue-600'
-                    }
-                    hover:scale-[1.02] active:scale-[0.98]
-                  `}
-                >
-                  {filter.label}
-                </button>
-              );
-            })}
-            
-            {/* Prominent expand/collapse button with clear visual separation */}
-            {hasMoreFilters && (
+      {/* Clean filter buttons without container */}
+      <div className="flex flex-wrap items-center gap-2">
+        {visibleFilters.map((filter) => {
+          const isActive = activeFilters.includes(filter.id);
+          return (
+            <button
+              key={filter.id}
+              onClick={() => toggleFilter(filter.id)}
+              className={`
+                inline-flex items-center px-3.5 py-2 text-sm font-medium rounded-full
+                transition-all duration-200 cursor-pointer whitespace-nowrap
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
+                ${isActive 
+                  ? 'bg-blue-600 text-white shadow-md hover:bg-blue-700 hover:shadow-lg' 
+                  : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-500 hover:bg-blue-50 shadow-sm'
+                }
+                hover:scale-105 active:scale-95
+              `}
+            >
+              {filter.label}
+            </button>
+          );
+        })}
+        
+        {/* Show More/Less button */}
+        {hasMoreFilters && (
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-full
+                     bg-blue-500 text-white hover:bg-blue-600 shadow-md hover:shadow-lg
+                     transition-all duration-200 cursor-pointer whitespace-nowrap
+                     focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
+                     hover:scale-105 active:scale-95"
+          >
+            {isExpanded ? (
               <>
-                {/* Visual separator */}
-                <div className="w-px h-6 bg-gray-300 mx-2"></div>
-                <button
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg
-                           bg-white border-2 border-blue-200 text-blue-700 hover:text-blue-800
-                           hover:bg-blue-50 hover:border-blue-300 hover:shadow-md
-                           transition-all duration-200 cursor-pointer whitespace-nowrap
-                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                           hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-                >
-                  {isExpanded ? (
-                    <>
-                      <ChevronUp className="w-4 h-4 mr-2" />
-                      Show Less
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-4 h-4 mr-2" />
-                      Show More ({quickFilters.length - filtersPerRow})
-                    </>
-                  )}
-                </button>
+                <ChevronUp className="w-4 h-4 mr-1.5" />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-1.5" />
+                More ({quickFilters.length - filtersPerRow})
               </>
             )}
-          </div>
-        </div>
+          </button>
+        )}
       </div>
     </div>
   );

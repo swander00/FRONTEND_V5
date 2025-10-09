@@ -15,26 +15,11 @@ export default function FiltersContainer() {
     <>
       {/* Desktop Filters - Hidden on mobile */}
       <div className="hidden md:block bg-white border-b border-gray-200 shadow-sm">
-        <div className="py-3 space-y-2">
-          {/* Search Bar */}
-          <div className="w-full px-4 sm:px-6 lg:px-8">
-            <div className="relative flex items-center max-w-3xl mx-auto">
-              <Search size={20} className="absolute left-4 text-gray-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search by location, street, MLS#, keywords..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-gray-200 rounded-2xl text-base text-gray-900 placeholder-gray-400 
-                         focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all shadow-sm hover:shadow-md"
-              />
-            </div>
-          </div>
-
+        <div className="py-3 space-y-4">
           <div className="w-full px-4 sm:px-6 lg:px-8">
             <PrimaryFilters />
           </div>
-          <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-4 sm:px-6 lg:px-8 pt-2">
             <QuickFilters />
           </div>
           <div className="w-full px-4 sm:px-6 lg:px-8">

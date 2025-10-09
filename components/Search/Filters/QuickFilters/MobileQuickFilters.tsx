@@ -63,11 +63,11 @@ export default function MobileQuickFilters() {
 
   return (
     <div className="w-full py-3">
-      {/* Main horizontal scrollable row */}
+      {/* Main horizontal scrollable row - no container background */}
       <div className="px-3">
         <div 
           ref={scrollRef}
-          className="flex gap-2 overflow-x-auto scrollbar-hide pb-2"
+          className="flex gap-2 overflow-x-auto scrollbar-hide pb-1"
           style={{
             scrollSnapType: 'x proximity',
             WebkitOverflowScrolling: 'touch',
@@ -81,10 +81,10 @@ export default function MobileQuickFilters() {
                 onClick={() => toggleFilter(filter.id)}
                 className={`
                   flex-shrink-0 px-4 py-2.5 rounded-full text-sm font-semibold
-                  transition-all duration-200 shadow-sm active:scale-95
+                  transition-all duration-200 active:scale-95
                   ${isActive 
                     ? 'bg-blue-600 text-white shadow-md' 
-                    : 'bg-white text-gray-700 border border-gray-300'
+                    : 'bg-white text-gray-700 border border-gray-300 shadow-sm'
                   }
                 `}
                 style={{
@@ -100,15 +100,10 @@ export default function MobileQuickFilters() {
           {moreFilters.length > 0 && (
             <button
               onClick={() => setShowMore(!showMore)}
-              className={`
-                flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold
-                transition-all duration-200 shadow-sm active:scale-95
-                flex items-center gap-2 border-2
-                ${showMore 
-                  ? 'bg-gray-900 text-white border-gray-900' 
-                  : 'bg-white text-gray-900 border-gray-900'
-                }
-              `}
+              className="flex-shrink-0 px-5 py-2.5 rounded-full text-sm font-bold
+                       transition-all duration-200 active:scale-95
+                       flex items-center gap-2
+                       bg-blue-500 text-white shadow-md hover:bg-blue-600"
             >
               More
               {showMore ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -117,9 +112,9 @@ export default function MobileQuickFilters() {
         </div>
       </div>
 
-      {/* Expanded "More" filters dropdown */}
+      {/* Expanded "More" filters dropdown - no container background */}
       {showMore && moreFilters.length > 0 && (
-        <div className="px-3 pt-2 animate-slideDown">
+        <div className="px-3 pt-3 animate-slideDown">
           <div className="flex flex-wrap gap-2">
             {moreFilters.map((filter) => {
               const isActive = activeFilters.includes(filter.id);
@@ -129,10 +124,10 @@ export default function MobileQuickFilters() {
                   onClick={() => toggleFilter(filter.id)}
                   className={`
                     px-4 py-2.5 rounded-full text-sm font-semibold
-                    transition-all duration-200 shadow-sm active:scale-95
+                    transition-all duration-200 active:scale-95
                     ${isActive 
                       ? 'bg-blue-600 text-white shadow-md' 
-                      : 'bg-white text-gray-700 border border-gray-300'
+                      : 'bg-white text-gray-700 border border-gray-300 shadow-sm'
                     }
                   `}
                 >

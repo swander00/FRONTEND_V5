@@ -12,7 +12,7 @@ export default function PropertyCountBar() {
   const activeView = searchParams?.get('view') || 'gallery';
   
   return (
-    <div className="bg-white border-b border-gray-200">
+    <div className="hidden lg:block bg-white border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between py-3">
           <MarketInsights totalCount={totalCount} currentPage={currentPage} totalPages={totalPages} />
