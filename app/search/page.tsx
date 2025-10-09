@@ -5,8 +5,8 @@ import { PropertyListingsSection } from '@/components/Property';
 import { Footer } from '@/components/Layout';
 import { FiltersContainer, FilterProvider, useFilters } from '@/components/Search';
 
-import { PropertyDetailsModal } from '@/components/Property';
-import { usePropertyPagination } from '@/hooks';
+import { PropertyDetailsModal, PropertyDetailsModalMobile } from '@/components/Property';
+import { usePropertyPagination, useIsMobile } from '@/hooks';
 import { useRouter } from 'next/navigation';
 import { getRealPropertyData } from '@/lib';
 import { useEffect, useState } from 'react';
@@ -30,6 +30,7 @@ function SearchPageContent({ searchParams }: SearchPageProps) {
   const showModal = searchParams.modal === 'property' && searchParams.id;
   const [modalProperty, setModalProperty] = useState<Property | undefined>(undefined);
   const [isLoadingModal, setIsLoadingModal] = useState(false);
+  const isMobile = useIsMobile();
 
   // Fetch specific property data when modal is opened
   useEffect(() => {
@@ -128,14 +129,22 @@ function SearchPageContent({ searchParams }: SearchPageProps) {
       />
       <Footer />
       
-      {/* Property Details Modal */}
+      {/* Property Details Modal - Responsive */}
       {showModal && (
-        <PropertyDetailsModal
-          isOpen={true}
-          propertyId={searchParams.id!}
-          onClose={handleClose}
-          property={modalProperty}
-        />
+        isMobile ? (
+          <PropertyDetailsModalMobile
+            isOpen={true}
+            property={modalProperty}
+            onClose={handleClose}
+          />
+        ) : (
+          <PropertyDetailsModal
+            isOpen={true}
+            propertyId={searchParams.id!}
+            onClose={handleClose}
+            property={modalProperty}
+          />
+        )
       )}
     </div>
   );

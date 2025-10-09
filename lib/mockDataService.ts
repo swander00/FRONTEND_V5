@@ -319,6 +319,7 @@ export const mockProperties: Property[] = [
     SquareFootageMax: 2400,
     PrimaryImageUrl: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop',
     images: ['https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&h=600&fit=crop'],
+    VirtualTourUrl: 'https://my.matterport.com/show/?m=example2',
     // Open House Information
     OpenHouseDetails: 'Sat, Jan 20, 1:00-3:00 PM',
     DaysOnMarket: 3,
@@ -497,6 +498,7 @@ export const mockProperties: Property[] = [
     SquareFootage: '2200',
     PrimaryImageUrl: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop',
     images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&h=600&fit=crop'],
+    VirtualTourUrl: 'https://my.matterport.com/show/?m=example3',
     OpenHouseDetails: 'Sat, Jan 20, 1:00-3:00 PM',
     DaysOnMarket: 3,
 
@@ -671,6 +673,7 @@ export const mockProperties: Property[] = [
     SquareFootage: '1100',
     PrimaryImageUrl: 'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop',
     images: ['https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800&h=600&fit=crop'],
+    VirtualTourUrl: 'https://my.matterport.com/show/?m=example4',
     OpenHouseDetails: 'Sun, Jan 18, 2:00-4:00 PM',
     DaysOnMarket: 7,
 
@@ -758,6 +761,7 @@ export const mockProperties: Property[] = [
     SquareFootage: '1200',
     PrimaryImageUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop',
     images: ['https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&h=600&fit=crop'],
+    VirtualTourUrl: 'https://my.matterport.com/show/?m=example5',
     OpenHouseDetails: 'Wed, Jan 22, 1:00-3:00 PM',
     DaysOnMarket: 15,
 
@@ -845,6 +849,7 @@ export const mockProperties: Property[] = [
     SquareFootage: '1400',
     PrimaryImageUrl: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop',
     images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800&h=600&fit=crop'],
+    VirtualTourUrl: 'https://my.matterport.com/show/?m=example6',
     OpenHouseDetails: 'Sat, Jan 25, 2:00-4:00 PM',
     DaysOnMarket: 4,
 

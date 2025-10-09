@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { getPropertyLocations, formatMarkerPrice, calculateBounds } from '@/lib/mockMapData';
 import { PropertyInfoPopupWithArrow } from './PropertyInfoPopupWithArrow';
 import PropertyDetailsModal from '@/components/Property/Details/PropertyDetailsModal';
+import { PropertyDetailsModalMobile } from '@/components/Property/Details';
+import { useIsMobile } from '@/hooks';
 
 interface MapViewProps {
   properties: Property[];
@@ -38,6 +40,7 @@ export default function MapView({
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [hoveredMarker, setHoveredMarker] = useState<string | null>(null);
+  const isMobile = useIsMobile();
   
   // Google Maps integration
   const { isLoaded, loadError } = useJsApiLoader({
@@ -198,12 +201,20 @@ export default function MapView({
         />
       </div>
 
-      {/* Property Details Modal */}
-      <PropertyDetailsModal
-        isOpen={!!selectedProperty}
-        property={selectedProperty || undefined}
-        onClose={() => setSelectedProperty(null)}
-      />
+      {/* Property Details Modal - Responsive */}
+      {isMobile ? (
+        <PropertyDetailsModalMobile
+          isOpen={!!selectedProperty}
+          property={selectedProperty || undefined}
+          onClose={() => setSelectedProperty(null)}
+        />
+      ) : (
+        <PropertyDetailsModal
+          isOpen={!!selectedProperty}
+          property={selectedProperty || undefined}
+          onClose={() => setSelectedProperty(null)}
+        />
+      )}
     </div>
   );
 }

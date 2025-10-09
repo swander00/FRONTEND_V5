@@ -1,6 +1,9 @@
-// Main modal component
-export { default as PropertyDetailsModal } from './PropertyDetailsModal';
+// Main modal components - Unified versions
+export { default as PropertyDetailsModal } from './PropertyDetailsModalDesktop'; // Unified Desktop Modal
+export { default as PropertyDetailsModalMobile } from './PropertyDetailsModalMobile';
+export { default as PropertyDetailsModalDesktop } from './PropertyDetailsModalDesktop';
 
+// Legacy components - These will be removed after testing
 // Core components
 export { default as PropertyDetailsHeader } from './PropertyDetailsHeader';
 export { default as PropertyHighlights } from './PropertyHighlights';

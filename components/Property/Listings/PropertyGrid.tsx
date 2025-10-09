@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { PropertyCard } from '@/components/Property';
-import { PropertyDetailsModal } from '@/components/Property';
+import { PropertyDetailsModal, PropertyDetailsModalMobile } from '@/components/Property';
 import { Property } from '@/types';
 import Pagination from '@/components/ui/pagination';
+import { useIsMobile } from '@/hooks';
 
 interface PropertyGridProps {
   properties: Property[];
@@ -23,6 +24,7 @@ export default function PropertyGrid({
 }: PropertyGridProps) {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const handleCardClick = (property: Property) => {
     setSelectedProperty(property);
@@ -73,12 +75,20 @@ export default function PropertyGrid({
         </div>
       </div>
 
-      {/* Property Details Modal */}
-      <PropertyDetailsModal
-        isOpen={isModalOpen}
-        property={selectedProperty || undefined}
-        onClose={handleCloseModal}
-      />
+      {/* Property Details Modal - Responsive */}
+      {isMobile ? (
+        <PropertyDetailsModalMobile
+          isOpen={isModalOpen}
+          property={selectedProperty || undefined}
+          onClose={handleCloseModal}
+        />
+      ) : (
+        <PropertyDetailsModal
+          isOpen={isModalOpen}
+          property={selectedProperty || undefined}
+          onClose={handleCloseModal}
+        />
+      )}
     </>
   );
 }
