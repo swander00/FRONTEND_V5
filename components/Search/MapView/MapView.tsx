@@ -9,8 +9,7 @@ import { Icon } from '@/components/shared/icons';
 import { Button } from '@/components/ui/button';
 import { getPropertyLocations, formatMarkerPrice, calculateBounds } from '@/lib/mockMapData';
 import { PropertyInfoPopupWithArrow } from './PropertyInfoPopupWithArrow';
-import PropertyDetailsModal from '@/components/Property/Details/PropertyDetailsModal';
-import { PropertyDetailsModalMobile } from '@/components/Property/Details';
+import { PropertyDetailsModal, PropertyDetailsModalMobile } from '@/components/Property/Details';
 import { useIsMobile } from '@/hooks';
 
 interface MapViewProps {

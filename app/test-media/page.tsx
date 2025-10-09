@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useMainPhoto, usePropertyPhotos, useMediaCount } from '@/hooks/usePropertyMedia';
-import { PropertyGallery } from '@/components/Property';
 import { MediaCountBadge } from '@/components/Property';
 import { ImageWithFallback } from '@/components/ui/Data';
 import { Button } from '@/components/ui/button';
@@ -119,7 +118,9 @@ export default function TestMediaPage() {
               )}
             </div>
             
-            <PropertyGallery status="Active" propertyType="Condo Apartment" />
+            <div className="text-sm text-gray-500">
+              Gallery component integrated into unified PropertyDetailsModal
+            </div>
           </div>
         </CardContent>
       </Card>
