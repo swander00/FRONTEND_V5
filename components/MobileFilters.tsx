@@ -45,6 +45,19 @@ const datePresets = [
   { value: '90-days', label: '90 Days' },
 ];
 
+const sqftRanges = [
+  { value: 'any', label: 'Any Size' },
+  { value: '0-1000', label: 'Under 1,000 ft²' },
+  { value: '1000-1500', label: '1,000 - 1,500 ft²' },
+  { value: '1500-2000', label: '1,500 - 2,000 ft²' },
+  { value: '2000-2500', label: '2,000 - 2,500 ft²' },
+  { value: '2500-3000', label: '2,500 - 3,000 ft²' },
+  { value: '3000-3500', label: '3,000 - 3,500 ft²' },
+  { value: '3500-4000', label: '3,500 - 4,000 ft²' },
+  { value: '4000-5000', label: '4,000 - 5,000 ft²' },
+  { value: '5000+', label: 'Over 5,000 ft²' },
+];
+
 interface CityCarouselProps {
   cities: string[];
   selectedCities: string[];
@@ -616,9 +629,9 @@ interface MobileFiltersModalProps {
 
 export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersModalProps) {
   const { filters: contextFilters, updateFilter: updateContextFilter, clearAllFilters: clearContextFilters } = useFilters();
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [dateDropdownOpen, setDateDropdownOpen] = useState(false);
+  const [sqftDropdownOpen, setSqftDropdownOpen] = useState(false);
   const [priceRangeExpanded, setPriceRangeExpanded] = useState(false);
   
   const [filters, setFilters] = useState({
@@ -637,13 +650,10 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
     bathroomsExpanded: false,
     // Advanced
     propertyClass: ['Freehold', 'Condo'] as string[],
-    sqftMin: '',
-    sqftMax: '',
+    sqftRange: 'any',
     houseStyles: [] as string[],
     lotFrontageMin: '',
     lotFrontageMax: '',
-    lotDepthMin: '',
-    lotDepthMax: '',
     maintenanceFeeMax: '',
     daysOnMarket: '',
     garageParking: '',
@@ -681,13 +691,10 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
       bathroomsMax: '',
       bathroomsExpanded: false,
       propertyClass: ['Freehold', 'Condo'] as string[],
-      sqftMin: '',
-      sqftMax: '',
+      sqftRange: 'any',
       houseStyles: [] as string[],
       lotFrontageMin: '',
       lotFrontageMax: '',
-      lotDepthMin: '',
-      lotDepthMax: '',
       maintenanceFeeMax: '',
       daysOnMarket: '',
       garageParking: '',
@@ -794,6 +801,11 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
     return preset ? preset.label : 'All Time';
   };
 
+  const getSqftLabel = () => {
+    const range = sqftRanges.find(r => r.value === filters.sqftRange);
+    return range ? range.label : 'Any Size';
+  };
+
   if (!isOpen) {
     return null;
   }
@@ -877,19 +889,11 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
 
         {/* Scrollable Content */}
         <div style={{ overflowY: 'auto', flex: 1 }}>
-          {/* PRIMARY FILTERS */}
+          {/* ALL FILTERS */}
           <div style={{
             padding: '12px',
             marginBottom: '20px',
           }}>
-            <h3 style={{
-              margin: '0 0 20px 0',
-              fontSize: '16px',
-              fontWeight: '700',
-              color: '#475569',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-            }}>Primary Filters</h3>
 
             {/* Property Class */}
             <div style={{ marginBottom: '24px' }}>
@@ -1973,222 +1977,645 @@ export default function MobileFiltersModal({ isOpen, onClose }: MobileFiltersMod
                 </div>
               )}
             </div>
-          </div>
 
-          {/* ADVANCED FILTERS */}
-          <div style={{
-            padding: '24px',
-          }}>
-            <button onClick={() => setAdvancedOpen(!advancedOpen)} style={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              background: 'linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%)',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '16px',
-              cursor: 'pointer',
-              marginBottom: advancedOpen ? '20px' : '0',
-            }}>
-              <span style={{ fontSize: '16px', fontWeight: '700', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Advanced Filters
-              </span>
-              {advancedOpen ? <ChevronUp size={20} color="#667eea" /> : <ChevronDown size={20} color="#667eea" />}
-            </button>
-
-            {advancedOpen && (
-              <div style={{ animation: 'slideDown 0.3s ease-out' }}>
-                {/* Square Footage */}
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    <Ruler size={16} /> Square Footage
+            {/* Square Footage */}
+                <div style={{ marginBottom: '24px', position: 'relative' }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Ruler size={18} /> Square Footage
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <input type="number" placeholder="Min sq ft" value={filters.sqftMin} onChange={(e) => updateFilter('sqftMin', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
+
+                  {/* Dropdown Button */}
+                  <button
+                    onClick={() => {
+                      setSqftDropdownOpen(!sqftDropdownOpen);
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '16px 20px',
+                      background: filters.sqftRange !== 'any'
+                        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                        : 'white',
+                      color: filters.sqftRange !== 'any' ? 'white' : '#475569',
+                      border: filters.sqftRange !== 'any' ? 'none' : '2px solid #e2e8f0',
+                      borderRadius: '16px',
                       fontSize: '15px',
-                    }} />
-                    <input type="number" placeholder="Max sq ft" value={filters.sqftMax} onChange={(e) => updateFilter('sqftMax', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                    }} />
-                  </div>
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.2s ease',
+                      boxShadow: filters.sqftRange !== 'any'
+                        ? '0 4px 12px rgba(102, 126, 234, 0.4)'
+                        : sqftDropdownOpen ? '0 2px 8px rgba(0,0,0,0.08)' : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    <span>{getSqftLabel()}</span>
+                    <ChevronDown size={18} />
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {sqftDropdownOpen && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      marginTop: '8px',
+                      background: 'white',
+                      borderRadius: '16px',
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                      zIndex: 100,
+                      padding: '8px',
+                      animation: 'slideDown 0.2s ease-out',
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                    }}>
+                      {sqftRanges.map(range => (
+                        <button
+                          key={range.value}
+                          onClick={() => {
+                            updateFilter('sqftRange', range.value);
+                            setSqftDropdownOpen(false);
+                          }}
+                          style={{
+                            width: '100%',
+                            padding: '14px 16px',
+                            background: filters.sqftRange === range.value ? '#f0f4ff' : 'transparent',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontSize: '15px',
+                            fontWeight: '600',
+                            color: filters.sqftRange === range.value ? '#667eea' : '#475569',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.2s',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (filters.sqftRange !== range.value) {
+                              e.currentTarget.style.background = '#f8fafc';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (filters.sqftRange !== range.value) {
+                              e.currentTarget.style.background = 'transparent';
+                            }
+                          }}
+                        >
+                          <span>{range.label}</span>
+                          {filters.sqftRange === range.value && <Check size={18} color="#667eea" />}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* House Style */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    <Building2 size={16} /> House Style
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {houseStyles.map(style => (
-                      <button key={style} onClick={() => toggleArrayFilter('houseStyles', style)} style={{
-                        padding: '10px 16px',
-                        background: filters.houseStyles.includes(style) ? '#667eea' : '#f8fafc',
-                        color: filters.houseStyles.includes(style) ? 'white' : '#64748b',
-                        border: 'none',
-                        borderRadius: '10px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Building2 size={18} /> House Style
+                    {filters.houseStyles.length > 0 && (
+                      <span style={{
+                        marginLeft: 'auto',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: 'white',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
                       }}>
-                        {style}
-                      </button>
-                    ))}
+                        {filters.houseStyles.length} selected
+                      </span>
+                    )}
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {houseStyles.map(style => {
+                      const isSelected = filters.houseStyles.includes(style);
+                      return (
+                        <button 
+                          key={style} 
+                          onClick={() => toggleArrayFilter('houseStyles', style)} 
+                          style={{
+                            padding: '12px 20px',
+                            background: isSelected 
+                              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                              : 'white',
+                            color: isSelected ? 'white' : '#475569',
+                            border: isSelected ? 'none' : '2px solid #e2e8f0',
+                            borderRadius: '24px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: isSelected 
+                              ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                              : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                            }
+                          }}
+                        >
+                          {style}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Lot Dimensions */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    Lot Frontage
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Ruler size={18} /> Lot Frontage
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <input type="number" placeholder="Min ft" value={filters.lotFrontageMin} onChange={(e) => updateFilter('lotFrontageMin', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                    }} />
-                    <input type="number" placeholder="Max ft" value={filters.lotFrontageMax} onChange={(e) => updateFilter('lotFrontageMax', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                    }} />
+                  
+                  {/* Display Card */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '16px',
+                    marginBottom: '12px',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      color: 'white',
+                    }}>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                          Min
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: '700' }}>
+                          {filters.lotFrontageMin ? `${filters.lotFrontageMin} ft` : 'Any'}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: '700', opacity: 0.7, padding: '0 12px' }}>
+                        →
+                      </div>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                          Max
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: '700' }}>
+                          {filters.lotFrontageMax ? `${filters.lotFrontageMax} ft` : 'Any'}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    Lot Depth
-                  </label>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                    <input type="number" placeholder="Min ft" value={filters.lotDepthMin} onChange={(e) => updateFilter('lotDepthMin', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                    }} />
-                    <input type="number" placeholder="Max ft" value={filters.lotDepthMax} onChange={(e) => updateFilter('lotDepthMax', e.target.value)} style={{
-                      padding: '14px',
-                      background: '#f8fafc',
-                      border: '2px solid #e2e8f0',
-                      borderRadius: '12px',
-                      fontSize: '15px',
-                    }} />
+                    <div>
+                      <label style={{ 
+                        display: 'block', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        color: '#64748b', 
+                        marginBottom: '6px' 
+                      }}>
+                        Min
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="Min ft" 
+                        value={filters.lotFrontageMin} 
+                        onChange={(e) => updateFilter('lotFrontageMin', e.target.value)} 
+                        style={{
+                          width: '100%',
+                          padding: '16px 12px',
+                          background: 'white',
+                          border: '2px solid #e2e8f0',
+                          borderRadius: '12px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          color: '#1e293b',
+                        }} 
+                      />
+                    </div>
+                    <div>
+                      <label style={{ 
+                        display: 'block', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        color: '#64748b', 
+                        marginBottom: '6px' 
+                      }}>
+                        Max
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="Max ft" 
+                        value={filters.lotFrontageMax} 
+                        onChange={(e) => updateFilter('lotFrontageMax', e.target.value)} 
+                        style={{
+                          width: '100%',
+                          padding: '16px 12px',
+                          background: 'white',
+                          border: '2px solid #e2e8f0',
+                          borderRadius: '12px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          color: '#1e293b',
+                        }} 
+                      />
+                    </div>
                   </div>
                 </div>
 
                 {/* Maintenance Fee */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    <Wrench size={16} /> Max Maintenance Fee
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Wrench size={18} /> Max Maintenance Fee
                   </label>
-                  <input type="number" placeholder="Max monthly fee" value={filters.maintenanceFeeMax} onChange={(e) => updateFilter('maintenanceFeeMax', e.target.value)} style={{
-                    width: '100%',
-                    padding: '14px',
-                    background: '#f8fafc',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                  }} />
+                  
+                  {/* Display Card */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '16px',
+                    marginBottom: '12px',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  }}>
+                    <div style={{
+                      textAlign: 'center',
+                      color: 'white',
+                    }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                        Max Monthly Fee
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                        {filters.maintenanceFeeMax ? `$${parseInt(filters.maintenanceFeeMax).toLocaleString()}` : 'Any'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <input 
+                    type="number" 
+                    placeholder="Max monthly fee" 
+                    value={filters.maintenanceFeeMax} 
+                    onChange={(e) => updateFilter('maintenanceFeeMax', e.target.value)} 
+                    style={{
+                      width: '100%',
+                      padding: '16px 12px',
+                      background: 'white',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '12px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#1e293b',
+                    }} 
+                  />
                 </div>
 
                 {/* Days on Market */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    <Clock size={16} /> Max Days on Market
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Clock size={18} /> Max Days on Market
                   </label>
-                  <input type="number" placeholder="Days" value={filters.daysOnMarket} onChange={(e) => updateFilter('daysOnMarket', e.target.value)} style={{
-                    width: '100%',
-                    padding: '14px',
-                    background: '#f8fafc',
-                    border: '2px solid #e2e8f0',
-                    borderRadius: '12px',
-                    fontSize: '15px',
-                  }} />
+                  
+                  {/* Display Card */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '16px',
+                    marginBottom: '12px',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  }}>
+                    <div style={{
+                      textAlign: 'center',
+                      color: 'white',
+                    }}>
+                      <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                        Max Days
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: '700' }}>
+                        {filters.daysOnMarket ? `${filters.daysOnMarket} days` : 'Any'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <input 
+                    type="number" 
+                    placeholder="Days" 
+                    value={filters.daysOnMarket} 
+                    onChange={(e) => updateFilter('daysOnMarket', e.target.value)} 
+                    style={{
+                      width: '100%',
+                      padding: '16px 12px',
+                      background: 'white',
+                      border: '2px solid #e2e8f0',
+                      borderRadius: '12px',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#1e293b',
+                    }} 
+                  />
                 </div>
 
                 {/* Parking */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    <Car size={16} /> Parking
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <Car size={18} /> Parking
                   </label>
+                  
+                  {/* Display Card */}
+                  <div style={{
+                    padding: '16px 20px',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    borderRadius: '16px',
+                    marginBottom: '12px',
+                    boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      color: 'white',
+                    }}>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                          Garage
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: '700' }}>
+                          {filters.garageParking ? `${filters.garageParking}+` : 'Any'}
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: '700', opacity: 0.7, padding: '0 12px' }}>
+                        |
+                      </div>
+                      <div style={{ textAlign: 'center', flex: 1 }}>
+                        <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.9, marginBottom: '4px' }}>
+                          Total
+                        </div>
+                        <div style={{ fontSize: '18px', fontWeight: '700' }}>
+                          {filters.totalParking ? `${filters.totalParking}+` : 'Any'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>Garage</label>
-                      <input type="number" placeholder="Min" value={filters.garageParking} onChange={(e) => updateFilter('garageParking', e.target.value)} style={{
-                        width: '100%',
-                        padding: '14px',
-                        background: '#f8fafc',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '12px',
-                        fontSize: '15px',
-                      }} />
+                      <label style={{ 
+                        display: 'block', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        color: '#64748b', 
+                        marginBottom: '6px' 
+                      }}>
+                        Garage Min
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="Min" 
+                        value={filters.garageParking} 
+                        onChange={(e) => updateFilter('garageParking', e.target.value)} 
+                        style={{
+                          width: '100%',
+                          padding: '16px 12px',
+                          background: 'white',
+                          border: '2px solid #e2e8f0',
+                          borderRadius: '12px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          color: '#1e293b',
+                        }} 
+                      />
                     </div>
                     <div>
-                      <label style={{ display: 'block', fontSize: '12px', color: '#64748b', marginBottom: '6px' }}>Total</label>
-                      <input type="number" placeholder="Min" value={filters.totalParking} onChange={(e) => updateFilter('totalParking', e.target.value)} style={{
-                        width: '100%',
-                        padding: '14px',
-                        background: '#f8fafc',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '12px',
-                        fontSize: '15px',
-                      }} />
+                      <label style={{ 
+                        display: 'block', 
+                        fontSize: '12px', 
+                        fontWeight: '600', 
+                        color: '#64748b', 
+                        marginBottom: '6px' 
+                      }}>
+                        Total Min
+                      </label>
+                      <input 
+                        type="number" 
+                        placeholder="Min" 
+                        value={filters.totalParking} 
+                        onChange={(e) => updateFilter('totalParking', e.target.value)} 
+                        style={{
+                          width: '100%',
+                          padding: '16px 12px',
+                          background: 'white',
+                          border: '2px solid #e2e8f0',
+                          borderRadius: '12px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          color: '#1e293b',
+                        }} 
+                      />
                     </div>
                   </div>
                 </div>
 
                 {/* Basement Features */}
                 <div style={{ marginBottom: '24px' }}>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#475569', marginBottom: '10px' }}>
-                    Basement Features
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {basementFeatures.map(feature => (
-                      <button key={feature} onClick={() => toggleArrayFilter('basementFeatures', feature)} style={{
-                        padding: '10px 16px',
-                        background: filters.basementFeatures.includes(feature) ? '#667eea' : '#f8fafc',
-                        color: filters.basementFeatures.includes(feature) ? 'white' : '#64748b',
-                        border: 'none',
-                        borderRadius: '10px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px', 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#475569', 
+                    marginBottom: '12px' 
+                  }}>
+                    <DoorOpen size={18} /> Basement Features
+                    {filters.basementFeatures.length > 0 && (
+                      <span style={{
+                        marginLeft: 'auto',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: 'white',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        padding: '4px 10px',
+                        borderRadius: '12px',
                       }}>
-                        {feature}
-                      </button>
-                    ))}
+                        {filters.basementFeatures.length} selected
+                      </span>
+                    )}
+                  </label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                    {basementFeatures.map(feature => {
+                      const isSelected = filters.basementFeatures.includes(feature);
+                      return (
+                        <button 
+                          key={feature} 
+                          onClick={() => toggleArrayFilter('basementFeatures', feature)} 
+                          style={{
+                            padding: '12px 20px',
+                            background: isSelected 
+                              ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                              : 'white',
+                            color: isSelected ? 'white' : '#475569',
+                            border: isSelected ? 'none' : '2px solid #e2e8f0',
+                            borderRadius: '24px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            boxShadow: isSelected 
+                              ? '0 4px 12px rgba(102, 126, 234, 0.4)' 
+                              : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.transform = 'scale(1)';
+                              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.05)';
+                            }
+                          }}
+                        >
+                          {feature}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Toggle Options */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px', background: '#f8fafc', borderRadius: '12px', cursor: 'pointer' }}>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: '#475569' }}>Basement Kitchen</span>
-                    <input type="checkbox" checked={filters.basementKitchen} onChange={(e) => updateFilter('basementKitchen', e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px', background: '#f8fafc', borderRadius: '12px', cursor: 'pointer' }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px', fontWeight: '600', color: '#475569' }}>
-                      <DoorOpen size={16} /> Open House Only
+                  <button
+                    onClick={() => updateFilter('basementKitchen', !filters.basementKitchen)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px 20px',
+                      background: filters.basementKitchen
+                        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                        : 'white',
+                      color: filters.basementKitchen ? 'white' : '#475569',
+                      border: filters.basementKitchen ? 'none' : '2px solid #e2e8f0',
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: filters.basementKitchen
+                        ? '0 4px 12px rgba(102, 126, 234, 0.4)'
+                        : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    <span style={{ fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Wrench size={18} /> Basement Kitchen
                     </span>
-                    <input type="checkbox" checked={filters.openHouse} onChange={(e) => updateFilter('openHouse', e.target.checked)} style={{ width: '20px', height: '20px', cursor: 'pointer' }} />
-                  </label>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '8px',
+                      background: filters.basementKitchen ? 'rgba(255, 255, 255, 0.3)' : '#e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      {filters.basementKitchen && <Check size={16} color="white" />}
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => updateFilter('openHouse', !filters.openHouse)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px 20px',
+                      background: filters.openHouse
+                        ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                        : 'white',
+                      color: filters.openHouse ? 'white' : '#475569',
+                      border: filters.openHouse ? 'none' : '2px solid #e2e8f0',
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      boxShadow: filters.openHouse
+                        ? '0 4px 12px rgba(102, 126, 234, 0.4)'
+                        : '0 2px 4px rgba(0, 0, 0, 0.05)',
+                    }}
+                  >
+                    <span style={{ fontSize: '14px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <DoorOpen size={18} /> Open House Only
+                    </span>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '8px',
+                      background: filters.openHouse ? 'rgba(255, 255, 255, 0.3)' : '#e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                      {filters.openHouse && <Check size={16} color="white" />}
+                    </div>
+                  </button>
                 </div>
-              </div>
-            )}
           </div>
         </div>
 
