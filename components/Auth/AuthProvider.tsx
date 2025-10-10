@@ -60,8 +60,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = () => {
     console.log('Signing out user');
     setUser(null);
-    localStorage.removeItem('mock-auth-user');
-    sessionStorage.removeItem('mock-auth-user');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('mock-auth-user');
+      sessionStorage.removeItem('mock-auth-user');
+    }
   };
 
   const signIn = async (email: string, password: string): Promise<boolean> => {
@@ -77,7 +79,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         };
         
         setUser(mockUser);
-        localStorage.setItem('mock-auth-user', 'authenticated');
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('mock-auth-user', 'authenticated');
+        }
         console.log('Mock user signed in:', mockUser);
         return true;
       }
@@ -129,7 +133,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       
       setUser(newUser);
-      localStorage.setItem('mock-auth-user', 'authenticated');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mock-auth-user', 'authenticated');
+      }
       console.log('✅ User created and signed in (mock mode):', newUser);
       console.log('📝 Buyer profile data (not saved to DB yet):', userData.buyerProfile);
       
