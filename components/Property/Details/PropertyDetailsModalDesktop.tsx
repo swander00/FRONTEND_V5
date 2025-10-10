@@ -10,7 +10,6 @@ import Image from 'next/image';
 import { PropertyDetailsModal as SharedModal } from '@/components/shared';
 import { PropertyLikeButton, PropertySaveButton, CircularActionButton } from '@/components/shared/buttons';
 import { OpenHouseBadge } from '@/components/shared/badges';
-import { useLikedListings } from '@/hooks/useUserData';
 import { usePropertyRooms } from '@/hooks/usePropertyRooms';
 import { Property, Room } from '@/types';
 import { toast } from 'sonner';
@@ -106,19 +105,13 @@ function CollapsibleSection({ title, icon: Icon, defaultExpanded = false, colorS
 
 export default function PropertyDetailsModalDesktop({ isOpen, property, propertyId, onClose }: PropertyDetailsModalDesktopProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [descTab, setDescTab] = useState<'about' | 'ai'>('about');
   const [historyExpanded, setHistoryExpanded] = useState(true);
   const [roomsExpanded, setRoomsExpanded] = useState(true);
 
-  const { likeListing, unlikeListing, checkIfLiked } = useLikedListings();
   const { rooms, loading: roomsLoading, error: roomsError } = usePropertyRooms(property?.MLSNumber || '');
-
-  useEffect(() => {
-    if (property?.ListingKey) setIsLiked(checkIfLiked(property.ListingKey));
-  }, [property?.ListingKey, checkIfLiked]);
 
   // Move roomData calculation here to avoid conditional hook calls
   const roomData = useMemo(() => {
@@ -152,25 +145,6 @@ export default function PropertyDetailsModalDesktop({ isOpen, property, property
   const interest = getInterestLevel((property as any).ViewCount || 0, (property as any).SaveCount || 0);
   const description = property.Description?.trim() || null;
   const hasDescription = description !== null;
-
-  const handleLikeClick = async () => {
-    if (!property?.ListingKey) return;
-    try {
-      if (isLiked) {
-        if (await unlikeListing(property.ListingKey)) {
-          setIsLiked(false);
-          toast.success('Removed from liked listings');
-        } else toast.error('Failed to remove');
-      } else {
-        if (await likeListing(property)) {
-          setIsLiked(true);
-          toast.success('Added to liked listings');
-        } else toast.error('Failed to add');
-      }
-    } catch (error) {
-      toast.error('An error occurred');
-    }
-  };
 
   const handleShare = async () => {
     const shareData = {

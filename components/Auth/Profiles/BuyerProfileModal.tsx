@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { mockGetUserProfile, mockUpdateUserProfile } from '@/lib/mockData';
+import { supabase } from '@/lib/supabaseClient';
 
 interface BuyerProfileModalProps {
   open: boolean;
@@ -13,11 +13,10 @@ interface BuyerProfileModalProps {
 }
 
 const moveTimeframeOptions = [
-  { value: '0-3months', label: '0–3 Months' },
-  { value: '3-6months', label: '3–6 Months' },
-  { value: '6-12months', label: '6–12 Months' },
-  { value: '12+months', label: '12+ Months' },
-  { value: 'curious', label: 'Just Curious' }
+  { value: '0-3', label: '0–3 Months' },
+  { value: '3-6', label: '3–6 Months' },
+  { value: '6-12', label: '6–12 Months' },
+  { value: '12+', label: '12+ Months' }
 ];
 
 export function BuyerProfileModal({ open, onClose, userId, onProfileComplete }: BuyerProfileModalProps) {
@@ -39,17 +38,35 @@ export function BuyerProfileModal({ open, onClose, userId, onProfileComplete }: 
   const loadProfileData = async () => {
     try {
       setLoading(true);
-      const profile = await mockGetUserProfile(userId);
+      console.log('📋 Loading buyer preferences for user:', userId);
 
-      if (profile) {
-        // For mock data, we'll use default values since the mock profile doesn't have these fields
+      // Load existing buyer preferences from database
+      const { data: buyerPrefs, error } = await supabase
+        .from('UserBuyerPreferences')
+        .select('*')
+        .eq('UserId', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        console.error('❌ Error loading buyer preferences:', error);
+      }
+
+      if (buyerPrefs) {
+        console.log('✅ Found existing buyer preferences:', buyerPrefs);
+        setIsPreapproved(buyerPrefs.PreApproved || false);
+        setIsFirstTimeBuyer(buyerPrefs.FirstTimeBuyer || false);
+        setHasHouseToSell(buyerPrefs.HasHouseToSell || false);
+        setMoveTimeframe(buyerPrefs.PurchaseTimeframe || '');
+      } else {
+        console.log('📋 No existing buyer preferences found - using defaults');
+        // Set default values
         setIsPreapproved(false);
-        setIsFirstTimeBuyer(true);
+        setIsFirstTimeBuyer(false);
         setHasHouseToSell(false);
-        setMoveTimeframe('6-12months');
+        setMoveTimeframe('');
       }
     } catch (err) {
-      console.error('Error loading profile data:', err);
+      console.error('❌ Error loading buyer preferences:', err);
     } finally {
       setLoading(false);
       setIsInitialLoad(false);
@@ -62,32 +79,36 @@ export function BuyerProfileModal({ open, onClose, userId, onProfileComplete }: 
     setError('');
 
     try {
-      console.log('Updating profile with data:', {
+      console.log('💾 Saving buyer preferences with data:', {
         userId,
-        is_preapproved: isPreapproved,
-        is_first_time_buyer: isFirstTimeBuyer,
-        has_house_to_sell: hasHouseToSell,
-        move_timeframe: moveTimeframe
+        PreApproved: isPreapproved,
+        FirstTimeBuyer: isFirstTimeBuyer,
+        HasHouseToSell: hasHouseToSell,
+        PurchaseTimeframe: moveTimeframe
       });
 
-      // Update the profile using mock function
-      const result = await mockUpdateUserProfile(userId, {
-        is_preapproved: isPreapproved,
-        is_first_time_buyer: isFirstTimeBuyer,
-        has_house_to_sell: hasHouseToSell,
-        move_timeframe: moveTimeframe
-      });
+      // Save buyer preferences to database
+      const { error } = await supabase
+        .from('UserBuyerPreferences')
+        .upsert({
+          UserId: userId,
+          FirstTimeBuyer: isFirstTimeBuyer,
+          PreApproved: isPreapproved,
+          HasHouseToSell: hasHouseToSell,
+          PurchaseTimeframe: moveTimeframe || null,
+        });
 
-      if (result.success) {
-        console.log('Profile updated successfully');
+      if (error) {
+        console.error('❌ Error saving buyer preferences:', error);
+        setError('Failed to save your preferences. Please try again.');
+      } else {
+        console.log('✅ Buyer preferences saved successfully');
         onProfileComplete?.();
         onClose();
-      } else {
-        setError('Failed to update profile. Please try again.');
       }
-    } catch (err) {
-      console.error('Error updating profile:', err);
-      setError('An error occurred while updating your profile. Please try again.');
+    } catch (err: any) {
+      console.error('❌ Error saving buyer preferences:', err);
+      setError(`An error occurred: ${err.message || 'Please try again.'}`);
     } finally {
       setLoading(false);
     }

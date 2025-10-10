@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Chrome, ArrowLeft, Home, Clock, Check, Phone } from 'lucide-react';
+import { Mail, Lock, User, Chrome, ArrowLeft, Home, Clock, Check, Phone } from 'lucide-react';
 
 interface SignUpModalProps {
   open: boolean;
@@ -31,8 +31,6 @@ function toUserProfilesPayload(formData: {
   lastName: string;
   email: string;
   phone: string;
-  password: string;
-  confirmPassword: string;
 }, buyerProfile: {
   firstTimeBuyer: boolean | null;
   preApproved: boolean | null;
@@ -52,15 +50,13 @@ function toUserProfilesPayload(formData: {
 }
 
 export function SignUpModal({ open, onClose }: SignUpModalProps) {
-  const { signUp, signIn, completeSignUp } = useAuth();
+  const { signUp, signIn, completeSignUp, signInWithGoogle } = useAuth();
   const [currentStep, setCurrentStep] = useState<Step>('initial');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
+    phone: ''
   });
   const [buyerProfile, setBuyerProfile] = useState<BuyerProfile>({
     firstTimeBuyer: null,
@@ -68,8 +64,6 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
     hasHouseToSell: null,
     purchaseTimeframe: null
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -93,76 +87,31 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
     try {
       setGoogleLoading(true);
       
-      // Simulate Google OAuth delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Use the signUp function from AuthProvider with mock Google credentials
-      const success = await signUp({
-        firstName: 'Google',
-        lastName: 'User',
-        email: 'google-user@example.com',
-        phone: undefined,
-        password: 'google-oauth-token'
-      });
+      // Use the real Google OAuth flow from AuthProvider
+      const success = await signInWithGoogle();
       
       if (success) {
-        // For Google sign-up, we'll complete immediately without questionnaire
-        const googleFormData = {
-          firstName: 'Google',
-          lastName: 'User',
-          email: 'google-user@example.com',
-          phone: '',
-          password: 'google-oauth-token',
-          confirmPassword: 'google-oauth-token'
-        };
-        const googleBuyerProfile = {
+        // Google OAuth will redirect to callback page, so we close the modal
+        // The AuthProvider will handle the user creation and profile setup
+        toast.success('Redirecting to Google...');
+        onClose();
+        
+        // Reset form and step
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: ''
+        });
+        setBuyerProfile({
           firstTimeBuyer: null,
           preApproved: null,
           hasHouseToSell: null,
           purchaseTimeframe: null
-        };
-        
-        // Generate DB-ready payload for Google sign-up
-        const googleDbPayload = toUserProfilesPayload(googleFormData, googleBuyerProfile);
-        console.log('=== GOOGLE SIGN-UP DB PAYLOAD ===');
-        console.log('Google DB Payload:', googleDbPayload);
-        console.log('==================================');
-        
-        const completeSuccess = await completeSignUp({
-          firstName: 'Google',
-          lastName: 'User',
-          email: 'google-user@example.com',
-          phone: undefined,
-          password: 'google-oauth-token',
-          buyerProfile: googleBuyerProfile
         });
-        
-        if (completeSuccess) {
-          console.log('Google sign-up completed with empty buyer profile');
-          toast.success('Account created successfully with Google!');
-          onClose();
-          
-          // Reset form and step
-          setFormData({
-            firstName: '',
-            lastName: '',
-            email: '',
-            phone: '',
-            password: '',
-            confirmPassword: ''
-          });
-          setBuyerProfile({
-            firstTimeBuyer: null,
-            preApproved: null,
-            hasHouseToSell: null,
-            purchaseTimeframe: null
-          });
-          setCurrentStep('initial');
-        } else {
-          toast.error('Failed to complete Google sign-up. Please try again.');
-        }
+        setCurrentStep('initial');
       } else {
-        toast.error('Failed to sign up with Google. Please try again.');
+        toast.error('Failed to initiate Google sign-in. Please try again.');
       }
     } catch (error) {
       console.error('Google sign up error:', error);
@@ -186,6 +135,18 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       return;
     }
     
+    if (!formData.phone.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+    
+    // Basic phone validation - check for at least 10 digits
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      toast.error('Please enter a valid phone number');
+      return;
+    }
+    
     if (!formData.email.trim()) {
       toast.error('Email is required');
       return;
@@ -195,41 +156,37 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       toast.error('Please enter a valid email address');
       return;
     }
-    
-    if (formData.password.length < 6) {
-      toast.error('Password must be at least 6 characters long');
-      return;
-    }
-    
-    if (formData.password !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
 
     try {
       setLoading(true);
       
       // Use the signUp function from AuthProvider
+      // Use phone number as password for simplified authentication
+      const phoneDigits = formData.phone.replace(/\D/g, '');
       const success = await signUp({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone || undefined,
-        password: formData.password
+        phone: formData.phone,
+        password: phoneDigits // Use phone number digits as password
       });
       
       if (success) {
-        console.log('Mock sign up successful for:', formData.email);
+        console.log('✅ Sign up successful for:', formData.email);
         // Proceed to Step 3: Buyer Questionnaire
         setCurrentStep('buyer-questionnaire');
-        setLoading(false);
       } else {
         toast.error('Failed to create account. Please try again.');
-        setLoading(false);
       }
-    } catch (error) {
-      console.error('Sign up error:', error);
-      toast.error('Failed to create account. Please try again.');
+    } catch (error: any) {
+      console.error('❌ Sign up error:', error);
+      // Check for specific error types
+      if (error?.message?.includes('already registered')) {
+        toast.error('This email is already registered. Please sign in instead.');
+      } else {
+        toast.error('Failed to create account. Please try again.');
+      }
+    } finally {
       setLoading(false);
     }
   };
@@ -238,28 +195,33 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
     try {
       setLoading(true);
       
+      console.log('🔵 Complete Setup button clicked');
+      console.log('🔵 Buyer profile data:', buyerProfile);
+      console.log('🔵 Form data:', { email: formData.email, firstName: formData.firstName, lastName: formData.lastName });
+      
       // Complete the sign up process with buyer profile
+      const phoneDigits = formData.phone.replace(/\D/g, '');
       const success = await completeSignUp({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        phone: formData.phone || undefined,
-        password: formData.password,
+        phone: formData.phone,
+        password: phoneDigits, // Use phone number digits as password
         buyerProfile: buyerProfile
       });
       
+      console.log('🔵 completeSignUp returned:', success);
+      
       if (success) {
+        console.log('✅ Complete signup successful - closing modal');
         toast.success('Account created successfully! Welcome to your personalized home search experience.');
-        onClose();
         
         // Reset all form data
         setFormData({
           firstName: '',
           lastName: '',
           email: '',
-          phone: '',
-          password: '',
-          confirmPassword: ''
+          phone: ''
         });
         setBuyerProfile({
           firstTimeBuyer: null,
@@ -268,13 +230,25 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
           purchaseTimeframe: null
         });
         setCurrentStep('initial');
+        
+        // Close modal AFTER state is reset
+        console.log('🔵 Calling onClose()');
+        onClose();
+        console.log('✅ Modal should now close');
       } else {
-        toast.error('Failed to complete setup. Please try again.');
+        console.error('❌ completeSignUp returned false');
+        toast.error('Unable to complete setup. Please try signing in with your email and password.');
       }
-    } catch (error) {
-      console.error('Questionnaire submission error:', error);
-      toast.error('Failed to complete setup. Please try again.');
+    } catch (error: any) {
+      console.error('❌ Questionnaire submission error:', error);
+      console.error('❌ Error details:', error.message);
+      if (error?.message?.includes('email confirmation')) {
+        toast.error('Please verify your email address to continue. Check your inbox for a confirmation link.');
+      } else {
+        toast.error(`Failed to complete setup: ${error.message || 'Unknown error'}`);
+      }
     } finally {
+      console.log('🔵 Setting loading to false');
       setLoading(false);
     }
   };
@@ -292,8 +266,15 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       return;
     }
     
-    if (!formData.password.trim()) {
-      toast.error('Password is required');
+    if (!formData.phone.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+    
+    // Basic phone validation - check for at least 10 digits
+    const phoneDigits = formData.phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      toast.error('Please enter a valid phone number');
       return;
     }
 
@@ -301,7 +282,8 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       setLoading(true);
       
       // Use the signIn function from AuthProvider
-      const success = await signIn(formData.email, formData.password);
+      // Use phone number digits as password
+      const success = await signIn(formData.email, phoneDigits);
       
       if (success) {
         toast.success('Signed in successfully!');
@@ -312,9 +294,7 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
           firstName: '',
           lastName: '',
           email: '',
-          phone: '',
-          password: '',
-          confirmPassword: ''
+          phone: ''
         });
         setBuyerProfile({
           firstTimeBuyer: null,
@@ -344,9 +324,7 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       firstName: '',
       lastName: '',
       email: '',
-      phone: '',
-      password: '',
-      confirmPassword: ''
+      phone: ''
     });
     setBuyerProfile({
       firstTimeBuyer: null,
@@ -363,9 +341,7 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
       firstName: '',
       lastName: '',
       email: '',
-      phone: '',
-      password: '',
-      confirmPassword: ''
+      phone: ''
     });
     setBuyerProfile({
       firstTimeBuyer: null,
@@ -528,79 +504,14 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
                 placeholder="(555) 123-4567"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
+                required
                 className="h-10"
               />
               <p className="text-xs text-gray-500">
-                Optional - for account recovery and notifications
+                This will be used for login and account recovery
               </p>
             </div>
 
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                <Lock className="inline mr-1 h-3 w-3" />
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your phone number (e.g., 5551234567)"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  required
-                  className="h-10 pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-10 px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-xs text-gray-500">
-                💡 Tip: Use your phone number as your password for easy remembering
-              </p>
-            </div>
-
-            {/* Confirm Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword" className="text-sm font-medium">
-                <Lock className="inline mr-1 h-3 w-3" />
-                Confirm Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  required
-                  className="h-10 pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-10 px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
-              </div>
-            </div>
 
             {/* Submit Buttons */}
             <div className="flex space-x-3 pt-4">
@@ -842,44 +753,26 @@ export function SignUpModal({ open, onClose }: SignUpModalProps) {
               />
             </div>
 
-            {/* Password Field */}
+            {/* Phone Field */}
             <div className="space-y-2">
-              <Label htmlFor="signin-password" className="text-sm font-medium">
-                <Lock className="inline mr-1 h-3 w-3" />
-                Password
+              <Label htmlFor="signin-phone" className="text-sm font-medium">
+                <Phone className="inline mr-1 h-3 w-3" />
+                Phone Number
               </Label>
-              <div className="relative">
-                <Input
-                  id="signin-password"
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                  required
-                  className="h-10 pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-10 px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-500" />
-                  )}
-                </Button>
-              </div>
+              <Input
+                id="signin-phone"
+                type="tel"
+                placeholder="(555) 123-4567"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                required
+                className="h-10"
+              />
+              <p className="text-xs text-gray-500">
+                Enter the phone number used during signup
+              </p>
             </div>
 
-            {/* Forgot Password Link */}
-            <div className="text-right">
-              <a href="#" className="text-sm text-blue-600 hover:underline">
-                Forgot your password?
-              </a>
-            </div>
 
             {/* Submit Buttons */}
             <div className="flex space-x-3 pt-4">

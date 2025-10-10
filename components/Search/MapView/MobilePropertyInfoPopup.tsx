@@ -7,7 +7,7 @@ import { TypeBadge, PropertyBadge } from '@/components/shared/badges/PropertyBad
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { PropertySaveButton } from '@/components/shared/buttons';
+import { PropertyLikeButton, PropertySaveButton } from '@/components/shared/buttons';
 
 interface MobilePropertyInfoPopupProps {
   property: Property;
@@ -207,6 +207,14 @@ export const MobilePropertyInfoPopup: React.FC<MobilePropertyInfoPopupProps> = (
             <Icon name="eye" size="xs" className="mr-1" />
             View
           </Button>
+          
+          <PropertyLikeButton 
+            property={property}
+            variant="popup"
+            size="sm"
+            borderRadius="lg"
+            className="h-8 px-3 active:scale-95 transition-transform"
+          />
           
           <PropertySaveButton 
             property={property}

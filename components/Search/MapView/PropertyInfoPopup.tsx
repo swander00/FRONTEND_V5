@@ -7,7 +7,7 @@ import { TypeBadge, PropertyBadge } from '@/components/shared/badges/PropertyBad
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { PropertySaveButton } from '@/components/shared/buttons';
+import { PropertyLikeButton, PropertySaveButton } from '@/components/shared/buttons';
 
 interface PropertyInfoPopupProps {
   property: Property;
@@ -210,6 +210,14 @@ export const PropertyInfoPopup: React.FC<PropertyInfoPopupProps> = ({
           >
             View Details
           </Button>
+          
+          <PropertyLikeButton 
+            property={property}
+            variant="popup"
+            size="sm"
+            borderRadius="md"
+            className="h-9 px-4"
+          />
           
           <PropertySaveButton 
             property={property}

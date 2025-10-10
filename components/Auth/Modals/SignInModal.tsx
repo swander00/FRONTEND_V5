@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { useAuth } from '@/components/Auth';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { AuthModal, EmailField, PasswordField, SubmitButton, CancelButton } from '@/components/shared';
+import { AuthModal, EmailField, SubmitButton, CancelButton } from '@/components/shared';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import { Chrome } from 'lucide-react';
 
@@ -14,10 +17,9 @@ interface SignInModalProps {
 }
 
 export function SignInModal({ open, onClose }: SignInModalProps) {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
@@ -25,22 +27,20 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
     try {
       setGoogleLoading(true);
       
-      // Simulate Google OAuth delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Use the signIn function from AuthProvider with mock Google credentials
-      const success = await signIn('google-user@example.com', 'google-oauth-token');
+      // Use the real Google OAuth flow from AuthProvider
+      const success = await signInWithGoogle();
       
       if (success) {
-        console.log('Mock Google sign in successful');
-        toast.success('Signed in successfully with Google!');
+        // Google OAuth will redirect to callback page, so we close the modal
+        // The AuthProvider will handle the user authentication
+        toast.success('Redirecting to Google...');
         onClose();
         
         // Reset form
         setEmail('');
-        setPassword('');
+        setPhone('');
       } else {
-        toast.error('Failed to sign in with Google. Please try again.');
+        toast.error('Failed to initiate Google sign-in. Please try again.');
       }
     } catch (error) {
       console.error('Google sign in error:', error);
@@ -63,8 +63,15 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
       return;
     }
     
-    if (!password.trim()) {
-      toast.error('Password is required');
+    if (!phone.trim()) {
+      toast.error('Phone number is required');
+      return;
+    }
+    
+    // Basic phone validation - check for at least 10 digits
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (phoneDigits.length < 10) {
+      toast.error('Please enter a valid phone number');
       return;
     }
 
@@ -72,7 +79,8 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
       setLoading(true);
       
       // Use the signIn function from AuthProvider
-      const success = await signIn(email, password);
+      // Use phone number digits as password
+      const success = await signIn(email, phoneDigits);
       
       if (success) {
         toast.success('Signed in successfully!');
@@ -80,9 +88,9 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
         
         // Reset form
         setEmail('');
-        setPassword('');
+        setPhone('');
       } else {
-        toast.error('Invalid email or password');
+        toast.error('Invalid email or phone number');
       }
     } catch (error) {
       console.error('Sign in error:', error);
@@ -129,18 +137,24 @@ export function SignInModal({ open, onClose }: SignInModalProps) {
           required
         />
 
-        {/* Password Field */}
-        <PasswordField
-          value={password}
-          onChange={setPassword}
-          required
-        />
-
-        {/* Forgot Password Link */}
-        <div className="text-right">
-          <a href="#" className="text-sm text-blue-600 hover:underline">
-            Forgot your password?
-          </a>
+        {/* Phone Field */}
+        <div className="space-y-2">
+          <Label htmlFor="signin-phone" className="text-sm font-medium">
+            <Phone className="inline mr-1 h-3 w-3" />
+            Phone Number
+          </Label>
+          <Input
+            id="signin-phone"
+            type="tel"
+            placeholder="(555) 123-4567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            className="h-10"
+          />
+          <p className="text-xs text-gray-500">
+            Enter the phone number used during signup
+          </p>
         </div>
 
         {/* Submit Buttons */}

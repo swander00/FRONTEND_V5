@@ -10,7 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { User, Mail, Phone, Home, Check, Clock, Edit3, Save, X } from 'lucide-react';
-import { mockGetUserProfile, mockUpdateUserProfile } from '@/lib';
+import { supabase } from '@/lib/supabaseClient';
 
 interface UserProfileModalProps {
   open: boolean;
@@ -30,11 +30,10 @@ interface UserProfile {
 }
 
 const moveTimeframeOptions = [
-  { value: '0-3months', label: '0–3 Months' },
-  { value: '3-6months', label: '3–6 Months' },
-  { value: '6-12months', label: '6–12 Months' },
-  { value: '12+months', label: '12+ Months' },
-  { value: 'curious', label: 'Just Curious' }
+  { value: '0-3', label: '0–3 Months' },
+  { value: '3-6', label: '3–6 Months' },
+  { value: '6-12', label: '6–12 Months' },
+  { value: '12+', label: '12+ Months' }
 ];
 
 export function UserProfileModal({ open, onClose }: UserProfileModalProps) {
@@ -62,22 +61,58 @@ export function UserProfileModal({ open, onClose }: UserProfileModalProps) {
   const loadProfileData = async () => {
     try {
       setLoading(true);
-      const userProfile = await mockGetUserProfile(user?.id || '');
-      
+      console.log('📋 Loading user profile data for:', user?.id);
+
+      // Load user profile from UserProfiles table
+      const { data: userProfile, error: profileError } = await supabase
+        .from('UserProfiles')
+        .select('*')
+        .eq('Id', user?.id)
+        .single();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.error('❌ Error loading user profile:', profileError);
+        toast.error('Failed to load profile data');
+        return;
+      }
+
+      // Load buyer preferences from UserBuyerPreferences table
+      const { data: buyerPrefs, error: buyerPrefsError } = await supabase
+        .from('UserBuyerPreferences')
+        .select('*')
+        .eq('UserId', user?.id)
+        .single();
+
+      if (buyerPrefsError && buyerPrefsError.code !== 'PGRST116') {
+        console.error('❌ Error loading buyer preferences:', buyerPrefsError);
+      }
+
+      // Set profile data
       if (userProfile) {
-        setProfile(userProfile);
+        setProfile({
+          firstName: userProfile.FirstName || '',
+          lastName: userProfile.LastName || '',
+          email: userProfile.Email || '',
+          phone: userProfile.Phone || '',
+          avatar_url: userProfile.AvatarUrl || '',
+          isPreapproved: buyerPrefs?.PreApproved || false,
+          isFirstTimeBuyer: buyerPrefs?.FirstTimeBuyer || false,
+          hasHouseToSell: buyerPrefs?.HasHouseToSell || false,
+          moveTimeframe: buyerPrefs?.PurchaseTimeframe || ''
+        });
+
         setFormData({
-          firstName: userProfile.firstName || '',
-          lastName: userProfile.lastName || '',
-          phone: userProfile.phone || '',
-          isPreapproved: false,
-          isFirstTimeBuyer: false,
-          hasHouseToSell: false,
-          moveTimeframe: ''
+          firstName: userProfile.FirstName || '',
+          lastName: userProfile.LastName || '',
+          phone: userProfile.Phone || '',
+          isPreapproved: buyerPrefs?.PreApproved || false,
+          isFirstTimeBuyer: buyerPrefs?.FirstTimeBuyer || false,
+          hasHouseToSell: buyerPrefs?.HasHouseToSell || false,
+          moveTimeframe: buyerPrefs?.PurchaseTimeframe || ''
         });
       }
     } catch (err) {
-      console.error('Error loading profile data:', err);
+      console.error('❌ Error loading profile data:', err);
       toast.error('Failed to load profile data');
     } finally {
       setLoading(false);
@@ -89,26 +124,47 @@ export function UserProfileModal({ open, onClose }: UserProfileModalProps) {
 
     try {
       setLoading(true);
+      console.log('💾 Saving profile data for user:', user.id);
       
-      const result = await mockUpdateUserProfile(user.id, {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        phone: formData.phone,
-        is_preapproved: formData.isPreapproved,
-        is_first_time_buyer: formData.isFirstTimeBuyer,
-        has_house_to_sell: formData.hasHouseToSell,
-        move_timeframe: formData.moveTimeframe
-      });
+      // Update user profile in UserProfiles table
+      const { error: profileError } = await supabase
+        .from('UserProfiles')
+        .update({
+          FirstName: formData.firstName,
+          LastName: formData.lastName,
+          Phone: formData.phone || null,
+        })
+        .eq('Id', user.id);
 
-      if (result.success) {
-        toast.success('Profile updated successfully!');
-        setIsEditing(false);
-        await loadProfileData(); // Reload to get updated data
-      } else {
+      if (profileError) {
+        console.error('❌ Error updating user profile:', profileError);
         toast.error('Failed to update profile. Please try again.');
+        return;
       }
+
+      // Update buyer preferences in UserBuyerPreferences table
+      const { error: buyerPrefsError } = await supabase
+        .from('UserBuyerPreferences')
+        .upsert({
+          UserId: user.id,
+          FirstTimeBuyer: formData.isFirstTimeBuyer,
+          PreApproved: formData.isPreapproved,
+          HasHouseToSell: formData.hasHouseToSell,
+          PurchaseTimeframe: formData.moveTimeframe || null,
+        });
+
+      if (buyerPrefsError) {
+        console.error('❌ Error updating buyer preferences:', buyerPrefsError);
+        toast.error('Failed to update buyer preferences. Please try again.');
+        return;
+      }
+
+      console.log('✅ Profile updated successfully');
+      toast.success('Profile updated successfully!');
+      setIsEditing(false);
+      await loadProfileData(); // Reload to get updated data
     } catch (err) {
-      console.error('Error updating profile:', err);
+      console.error('❌ Error updating profile:', err);
       toast.error('An error occurred while updating your profile.');
     } finally {
       setLoading(false);

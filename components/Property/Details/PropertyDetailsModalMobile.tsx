@@ -31,8 +31,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { Property } from '@/types';
-import { useLikedListings } from '@/hooks/useUserData';
 import { toast } from 'sonner';
+import { PropertyLikeButton, PropertySaveButton } from '@/components/shared/buttons';
 import ListingInformationSection from './sections/ListingInformationSection';
 import PropertyDetailsSection from './sections/PropertyDetailsSection';
 import BasementSection from './sections/BasementSection';
@@ -71,46 +71,13 @@ export default function PropertyDetailsModalMobile({
 }: PropertyDetailsModalMobileProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFullscreenGallery, setIsFullscreenGallery] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [descriptionTab, setDescriptionTab] = useState<TabType>('about');
   const [expandedRooms, setExpandedRooms] = useState(false);
-  
-  const { likeListing, unlikeListing, checkIfLiked } = useLikedListings();
   
   // Room details hook
   const { rooms, loading: roomsLoading } = usePropertyRooms(property?.MLSNumber || '');
 
-  // Check if property is liked
-  useEffect(() => {
-    if (property?.ListingKey) {
-      setIsLiked(checkIfLiked(property.ListingKey));
-    }
-  }, [property?.ListingKey, checkIfLiked]);
-
   if (!isOpen || !property) return null;
-
-  // Handle like/unlike
-  const handleLikeClick = async () => {
-    if (!property?.ListingKey) return;
-    
-    try {
-      if (isLiked) {
-        const success = await unlikeListing(property.ListingKey);
-        if (success) {
-          setIsLiked(false);
-          toast.success('Removed from liked listings');
-        }
-      } else {
-        const success = await likeListing(property);
-        if (success) {
-          setIsLiked(true);
-          toast.success('Added to liked listings');
-        }
-      }
-    } catch (error) {
-      console.error('Error toggling like:', error);
-    }
-  };
 
   // Navigation handlers
   const goToNext = () => {
@@ -200,16 +167,19 @@ export default function PropertyDetailsModalMobile({
           </span>
         </div>
 
-        {/* Like Button - Top Right (with spacing for close button) */}
-        <button
-          onClick={handleLikeClick}
-          className={`absolute top-2 right-14 p-2 rounded-full backdrop-blur-sm shadow-lg ${
-            isLiked ? 'bg-red-500' : 'bg-white/90'
-          }`}
-          aria-label={isLiked ? 'Unlike property' : 'Like property'}
-        >
-          <Heart className={`w-5 h-5 ${isLiked ? 'fill-white text-white' : 'text-gray-700'}`} />
-        </button>
+        {/* Action Buttons - Top Right (with spacing for close button) */}
+        <div className="absolute top-2 right-14 flex items-center gap-2">
+          <PropertySaveButton 
+            property={property}
+            variant="card"
+            size="md"
+          />
+          <PropertyLikeButton 
+            property={property}
+            variant="card"
+            size="md"
+          />
+        </div>
         
         {/* Left Arrow */}
         <button
@@ -310,15 +280,18 @@ export default function PropertyDetailsModalMobile({
 
             {/* Action Buttons */}
             <div className="flex items-center gap-1">
-              <button
-                onClick={handleLikeClick}
-                className={`p-1.5 rounded-lg ${isLiked ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'}`}
-              >
-                <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
-              </button>
-              <button className="p-1.5 rounded-lg bg-gray-100 text-gray-600">
-                <Bookmark className="w-4 h-4" />
-              </button>
+              <PropertySaveButton 
+                property={property}
+                variant="minimal"
+                size="sm"
+                borderRadius="lg"
+              />
+              <PropertyLikeButton 
+                property={property}
+                variant="minimal"
+                size="sm"
+                borderRadius="lg"
+              />
               <button onClick={handleShare} className="p-1.5 rounded-lg bg-gray-100 text-gray-600">
                 <Share2 className="w-4 h-4" />
               </button>

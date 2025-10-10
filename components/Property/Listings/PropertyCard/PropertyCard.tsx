@@ -17,7 +17,7 @@ import {
   OpenHouseBadge,
   StatusOverlay,
 } from '@/components/shared';
-import { ImageActionButtons, PropertyLikeButton } from '@/components/shared/buttons';
+import { ImageActionButtons, PropertyLikeButton, PropertySaveButton } from '@/components/shared/buttons';
 
 // Hooks
 import { usePropertyFields } from '@/hooks/usePropertyFields';
@@ -199,8 +199,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             </div>
           </div>
 
-          {/* Action Button (Like) */}
-          <div className="absolute top-3 right-3 z-20">
+          {/* Action Buttons (Like & Save) */}
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-2">
+            <PropertySaveButton 
+              property={property}
+              variant="card"
+              size="md"
+            />
             <PropertyLikeButton 
               property={property}
               variant="card"
