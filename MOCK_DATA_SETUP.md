@@ -50,24 +50,20 @@ This is your main data service file that will later be replaced with actual API 
 
 ## Supabase Connection
 
-### ✅ Database Configured
+### ✅ Authentication Configured
 - **URL**: `https://gyeviskmqtkskcoyyprp.supabase.co`
 - **Environment**: `.env.local` (configured)
-- **Test page**: `http://localhost:3000/test-supabase`
+- **Usage**: Authentication only (data will come from backend APIs)
 
-### Database Connection Details
+### Authentication Details
 The connection is configured in `lib/supabaseClient.ts` with:
 - Anon key for client-side operations
-- Service role key for server-side operations
-- Table names ready to be configured
+- Auth persistence and token refresh enabled
 
 ## Next Steps - When Ready for APIs
 
-### 1. Update Table Names
-Edit `lib/supabaseClient.ts` and update the `TABLES` constant with your actual Supabase table names.
-
-### 2. Create API Routes
-Create API routes in `app/api/` folder. Example structure:
+### 1. Build Backend APIs
+Your backend should provide API routes. Example structure:
 ```
 app/api/
   properties/
@@ -78,7 +74,7 @@ app/api/
     route.ts          - Already exists (ready to connect)
 ```
 
-### 3. Replace Mock Functions
+### 2. Replace Mock Functions
 In `lib/propertyDataService.ts`, replace each function's mock implementation with actual API calls:
 
 ```typescript
@@ -94,7 +90,7 @@ export async function getPropertiesWithPaginationFromDB(...) {
 }
 ```
 
-### 4. Field Mapping
+### 3. Field Mapping
 When you connect to real data, you may need to map database fields to your frontend types. This can be done:
 - In your API routes (recommended)
 - Or in the data service layer
@@ -105,11 +101,6 @@ When you connect to real data, you may need to map database fields to your front
 1. Start dev server: `npm run dev`
 2. Visit: `http://localhost:3000`
 3. You should see 12 mock properties
-
-### Test Supabase Connection
-1. Visit: `http://localhost:3000/test-supabase`
-2. Click "Run Quick Test"
-3. Open browser console (F12) to see results
 
 ### Test Filtering
 1. On home page, click "Filters"
@@ -132,12 +123,12 @@ These remind you which functions need to be replaced with real API calls.
 lib/
   ├── propertyDataService.ts      ← Main service (replace mock calls here)
   ├── mockDataService.ts          ← Mock data (keep for development)
-  ├── supabaseClient.ts           ← Database connection
-  └── testSupabaseConnection.ts   ← Database testing utilities
+  ├── userDataService.ts          ← User data service (replace with API)
+  └── supabaseClient.ts           ← Authentication only
 
 app/api/
-  ├── search/route.ts             ← Search API (ready)
-  └── search-suggestions/route.ts ← Suggestions API (ready)
+  ├── search/route.ts             ← Search API (ready for backend)
+  └── search-suggestions/route.ts ← Suggestions API (ready for backend)
 
 types/
   └── filters.ts                  ← FilterCriteria interface

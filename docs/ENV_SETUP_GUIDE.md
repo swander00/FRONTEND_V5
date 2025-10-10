@@ -38,19 +38,12 @@ After updating `.env.local`, restart your Next.js development server:
 npm run dev
 ```
 
-### Step 4: Test the Connection
+### Step 4: Verify Authentication
 
-You can test your Supabase connection using the test page:
+Your Supabase client is now configured for authentication. You can verify it works by:
 
-1. Navigate to: `http://localhost:3000/test-supabase`
-2. Or use the test function in your code:
-
-```typescript
-import { testConnection } from '@/lib/supabaseClient';
-
-const result = await testConnection();
-console.log(result);
-```
+1. Try logging in/signing up through the UI
+2. Check the browser console for any authentication errors
 
 ## Security Notes
 
@@ -77,21 +70,11 @@ If you see authentication errors:
 - Make sure there are no extra spaces or line breaks
 - Verify you're using the correct project's credentials
 
-### Table Access Errors
-
-If the connection works but you can't access tables:
-- Check your table names in `lib/supabaseClient.ts` (TABLES constant)
-- Verify Row Level Security policies in Supabase
-- Make sure the tables exist in your database
-
 ## Next Steps
 
-Once your connection is working:
+Once your authentication is working:
 
-1. ✅ Update table names in `lib/supabaseClient.ts`
-2. ✅ Map database fields in `lib/supabaseFieldMapper.ts`
-3. ✅ Test with real data
-4. ✅ Update data services to use Supabase instead of mock data
-
-See `SUPABASE_SETUP_GUIDE.md` for detailed field mapping instructions.
+1. ✅ Build your backend APIs
+2. ✅ Integrate frontend with backend APIs
+3. ✅ Eventually migrate auth to backend APIs as well
 

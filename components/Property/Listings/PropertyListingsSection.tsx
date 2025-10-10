@@ -81,7 +81,7 @@ export default function PropertyListingsSection({
     priceRange: filters.priceRange,
     bedrooms: filters.bedrooms,
     bathrooms: filters.bathrooms,
-    status: filters.status,
+    status: filters.status ? [filters.status] : undefined,
     searchTerm: searchTerm || undefined
   }), [filters.city, filters.propertyType, filters.priceRange, filters.bedrooms, filters.bathrooms, filters.status, searchTerm]);
   
