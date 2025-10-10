@@ -1,12 +1,11 @@
 /**
  * Supabase Connection Test Utility
  * 
- * This file provides utilities to test your Supabase connection and field mappings.
+ * This file provides utilities to test your Supabase connection.
  * Use these functions to verify that everything is working correctly.
  */
 
 import { supabase, TABLES, testConnection } from './supabaseClient';
-import { mapSupabasePropertyToFrontend } from './supabaseFieldMapper';
 import type { Property } from '@/types';
 
 // ============================================================================
@@ -116,85 +115,15 @@ export async function testPropertyCount() {
 }
 
 // ============================================================================
-// FIELD MAPPING TESTS
+// DATABASE SCHEMA TESTS
 // ============================================================================
 
 /**
- * Test 5: Test Field Mapping
- * Fetches a property and maps it using the field mapper
+ * Test 5: Show Database Schema
+ * Fetches a property and shows the available fields
  */
 export async function testFieldMapping() {
-  console.log('🧪 Test 5: Testing field mapping...');
-  
-  try {
-    // Fetch a property
-    const { data, error } = await supabase
-      .from(TABLES.PROPERTIES)
-      .select('*')
-      .limit(1)
-      .single();
-
-    if (error) {
-      console.error('❌ Error fetching property for mapping:', error);
-      return { success: false, error };
-    }
-
-    console.log('📊 Raw database property:', data);
-    
-    // Map the property
-    const mappedProperty: Property = mapSupabasePropertyToFrontend(data);
-    
-    console.log('📊 Mapped frontend property:', mappedProperty);
-    console.log('✅ Field mapping completed!');
-    
-    // Show which fields were successfully mapped
-    const mappedFields = Object.entries(mappedProperty)
-      .filter(([_, value]) => value !== undefined && value !== null && value !== '')
-      .map(([key]) => key);
-    
-    console.log(`✅ ${mappedFields.length} fields successfully mapped:`, mappedFields);
-    
-    // Show which critical fields are still unmapped
-    const criticalFields = [
-      'ListingKey',
-      'UnparsedAddress',
-      'City',
-      'ListPrice',
-      'Bedrooms',
-      'Bathrooms',
-      'PropertyType',
-      'MlsStatus'
-    ];
-    
-    const unmappedCriticalFields = criticalFields.filter(
-      field => !mappedFields.includes(field)
-    );
-    
-    if (unmappedCriticalFields.length > 0) {
-      console.log('⚠️ Critical fields still unmapped:', unmappedCriticalFields);
-    } else {
-      console.log('✅ All critical fields are mapped!');
-    }
-    
-    return { 
-      success: true, 
-      rawData: data,
-      mappedData: mappedProperty,
-      mappedFieldsCount: mappedFields.length,
-      unmappedCriticalFields 
-    };
-  } catch (error) {
-    console.error('❌ Exception during field mapping:', error);
-    return { success: false, error };
-  }
-}
-
-/**
- * Test 6: Compare Raw and Mapped Data
- * Shows side-by-side comparison of raw database data and mapped frontend data
- */
-export async function testCompareRawAndMapped() {
-  console.log('🧪 Test 6: Comparing raw and mapped data...');
+  console.log('🧪 Test 5: Inspecting database schema...');
   
   try {
     // Fetch a property
@@ -209,22 +138,54 @@ export async function testCompareRawAndMapped() {
       return { success: false, error };
     }
 
-    // Map the property
-    const mappedProperty = mapSupabasePropertyToFrontend(data);
+    console.log('📊 Raw database property:', data);
+    
+    // Show available fields
+    const availableFields = Object.keys(data || {});
+    
+    console.log(`✅ ${availableFields.length} fields available in database:`);
+    console.log(availableFields);
+    
+    return { 
+      success: true, 
+      rawData: data,
+      availableFields,
+      fieldCount: availableFields.length
+    };
+  } catch (error) {
+    console.error('❌ Exception inspecting schema:', error);
+    return { success: false, error };
+  }
+}
+
+/**
+ * Test 6: Show Raw Database Data
+ * Displays raw data from the database
+ */
+export async function testCompareRawAndMapped() {
+  console.log('🧪 Test 6: Displaying raw database data...');
+  
+  try {
+    // Fetch a property
+    const { data, error } = await supabase
+      .from(TABLES.PROPERTIES)
+      .select('*')
+      .limit(1)
+      .single();
+
+    if (error) {
+      console.error('❌ Error fetching property:', error);
+      return { success: false, error };
+    }
     
     console.log('═══════════════════════════════════════════════════════════');
     console.log('RAW DATABASE FIELDS:');
     console.log('═══════════════════════════════════════════════════════════');
     console.table(data);
     
-    console.log('═══════════════════════════════════════════════════════════');
-    console.log('MAPPED FRONTEND FIELDS:');
-    console.log('═══════════════════════════════════════════════════════════');
-    console.table(mappedProperty);
-    
-    return { success: true, rawData: data, mappedData: mappedProperty };
+    return { success: true, rawData: data };
   } catch (error) {
-    console.error('❌ Exception during comparison:', error);
+    console.error('❌ Exception fetching data:', error);
     return { success: false, error };
   }
 }
@@ -320,11 +281,11 @@ export async function runAllTests() {
 // ============================================================================
 
 /**
- * Test a specific field mapping
- * Useful for debugging individual field mappings
+ * Test a specific field in the database
+ * Useful for inspecting individual field values
  */
-export async function testSpecificField(fieldName: keyof Property) {
-  console.log(`🧪 Testing mapping for field: ${fieldName}`);
+export async function testSpecificField(fieldName: string) {
+  console.log(`🧪 Inspecting database field: ${fieldName}`);
   
   try {
     // Fetch a property
@@ -338,23 +299,18 @@ export async function testSpecificField(fieldName: keyof Property) {
       console.error('❌ Error fetching property:', error);
       return { success: false, error };
     }
-
-    // Map the property
-    const mappedProperty = mapSupabasePropertyToFrontend(data);
     
     const rawValue = data[fieldName];
-    const mappedValue = mappedProperty[fieldName];
     
     console.log(`Raw value (${fieldName}):`, rawValue);
-    console.log(`Mapped value (${fieldName}):`, mappedValue);
     
-    if (mappedValue !== undefined && mappedValue !== null && mappedValue !== '') {
-      console.log(`✅ Field "${fieldName}" is mapped correctly!`);
+    if (rawValue !== undefined && rawValue !== null && rawValue !== '') {
+      console.log(`✅ Field "${fieldName}" has a value!`);
     } else {
-      console.log(`⚠️ Field "${fieldName}" is not mapped or has no value`);
+      console.log(`⚠️ Field "${fieldName}" is empty or does not exist`);
     }
     
-    return { success: true, rawValue, mappedValue };
+    return { success: true, rawValue };
   } catch (error) {
     console.error('❌ Exception testing field:', error);
     return { success: false, error };

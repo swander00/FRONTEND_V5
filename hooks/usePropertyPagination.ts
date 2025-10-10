@@ -3,8 +3,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { Property } from '@/types';
-import { getPropertiesWithPaginationFromDB } from '@/lib/propertyMapping';
-import { FilterCriteria } from '@/lib/propertyMapping';
+import { FilterCriteria } from '@/types/filters';
+import { getPropertiesWithPaginationFromDB } from '@/lib/propertyDataService';
 
 interface UsePropertyPaginationProps {
   initialPage?: number;
