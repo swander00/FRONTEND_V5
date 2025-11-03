@@ -1,8 +1,6 @@
 // Shared Overlay Components
 export { 
   StatusOverlay,
-  SoldOverlay,
-  LeasedOverlay, 
   RemovedOverlay,
   UnavailableOverlay
 } from './StatusOverlay';

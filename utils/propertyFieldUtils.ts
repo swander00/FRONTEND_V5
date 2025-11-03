@@ -402,13 +402,13 @@ export class PropertyFieldUtils implements PropertyFieldAccessor {
       },
       
       listing: {
-        mlsNumber: property.MLSNumber || '',
+        mlsNumber: property.ListingKey || '',
         listDate: PropertyFieldUtils.formatListDate(property.ListDate || ''),
         listDateRelative: PropertyFieldUtils.formatRelativeDate(property.ListDate || ''),
-        status: PropertyFieldUtils.getStatusConfig(property.MlsStatus || ''),
+        status: PropertyFieldUtils.getStatusConfig((property as any).status || (property as any).MlsStatus || ''),
         price: {
-          display: PropertyFieldUtils.formatPrice(property.ListPrice || property.ClosePrice),
-          amount: property.ListPrice || property.ClosePrice || 0,
+          display: PropertyFieldUtils.formatPrice((property as any).ListPrice || (property as any).ClosePrice || 0),
+          amount: (property as any).ListPrice || (property as any).ClosePrice || 0,
           currency: 'CAD',
           suffix: PropertyFieldUtils.getPriceSuffix(property),
           textColor: PropertyFieldUtils.getPriceTextColor(property),
@@ -426,7 +426,7 @@ export class PropertyFieldUtils implements PropertyFieldAccessor {
   }
   
   private static getPriceSuffix(property: Property): string {
-    const status = property.MlsStatus?.toLowerCase() || '';
+    const status = ((property as any).MlsStatus || property.status || '').toLowerCase();
     
     switch (status) {
       case 'for lease':
@@ -441,7 +441,7 @@ export class PropertyFieldUtils implements PropertyFieldAccessor {
   }
   
   private static getPriceTextColor(property: Property): string {
-    const status = property.MlsStatus?.toLowerCase() || '';
+    const status = ((property as any).MlsStatus || property.status || '').toLowerCase();
     
     switch (status) {
       case 'sold':
@@ -456,7 +456,7 @@ export class PropertyFieldUtils implements PropertyFieldAccessor {
   }
   
   private static getPriceStatusColor(property: Property): string {
-    const status = property.MlsStatus?.toLowerCase() || '';
+    const status = ((property as any).MlsStatus || property.status || '').toLowerCase();
     
     switch (status) {
       case 'for lease':

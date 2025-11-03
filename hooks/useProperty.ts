@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Property } from '@/types';
-import { mockGetProperty } from '@/lib/mockData';
+import { getPropertyByMLS } from '@/lib/mockDataService';
 
 export function useProperty(propertyId: string) {
   const [property, setProperty] = useState<Property | null>(null);
@@ -19,10 +19,10 @@ export function useProperty(propertyId: string) {
       
       try {
         console.log('useProperty: Fetching property with ID:', propertyId);
-        const mockProperty = await mockGetProperty(propertyId);
+        const mockProperty = await getPropertyByMLS(propertyId);
         
         if (!mockProperty) {
-          console.log('useProperty: No data returned from mockGetProperty');
+          console.log('useProperty: No data returned from getPropertyByMLS');
           setError('Property not found');
           return;
         }

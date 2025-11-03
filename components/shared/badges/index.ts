@@ -1,7 +1,7 @@
 // Shared Badge Components
-export { default as StatusBadge, LegacyStatusBadge } from './StatusBadge';
-export { default as TypeBadge, LegacyTypeBadge } from './TypeBadge';
-export { default as CommunityBadge, LegacyCommunityBadge } from './CommunityBadge';
+export { default as StatusBadge } from './StatusBadge';
+export { default as TypeBadge } from './TypeBadge';
+export { default as CommunityBadge } from './CommunityBadge';
 
 // New Property Badge System
 export { 

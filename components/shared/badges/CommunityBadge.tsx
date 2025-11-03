@@ -53,37 +53,3 @@ export default function CommunityBadge({
   );
 }
 
-// Legacy interface for backward compatibility
-interface LegacyCommunityBadgeProps {
-  community?: string;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'outlined' | 'filled';
-  className?: string;
-}
-
-/**
- * Legacy CommunityBadge component for backward compatibility
- * @deprecated Use the new CommunityBadge component with property prop instead
- */
-export function LegacyCommunityBadge({ 
-  community,
-  size = 'md',
-  variant = 'default',
-  className = ''
-}: LegacyCommunityBadgeProps) {
-  // Create a minimal property object for the new component
-  const property: Property = {
-    ListingKey: '',
-    UnparsedAddress: '',
-    Community: community
-  };
-  
-  return (
-    <CommunityBadge 
-      property={property}
-      size={size}
-      variant={variant}
-      className={className}
-    />
-  );
-}

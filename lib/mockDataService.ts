@@ -1108,7 +1108,8 @@ export async function getPropertyByMLS(mlsNumber: string): Promise<Property | nu
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 200));
   
-  const property = mockProperties.find(p => p.MLSNumber === mlsNumber);
+  // Use ListingKey instead of MLSNumber (legacy field removed)
+  const property = mockProperties.find(p => p.ListingKey === mlsNumber);
   return property || null;
 }
 
@@ -1192,31 +1193,6 @@ export async function getPropertyStatistics(): Promise<{
     propertyTypes,
     topCommunities
   };
-}
-
-// ============================================================================
-// LEGACY COMPATIBILITY FUNCTIONS
-// ============================================================================
-
-/**
- * Legacy function for backward compatibility
- */
-export async function mockSearch(query: string, status: string = 'buy', page: number = 1, pageSize: number = 12) {
-  return await searchProperties(query, page, pageSize, { status });
-}
-
-/**
- * Legacy function for backward compatibility
- */
-export async function mockGetProperty(propertyId: string) {
-  return await getPropertyByMLS(propertyId);
-}
-
-/**
- * Legacy function for backward compatibility
- */
-export async function mockSearchSuggestions(query: string, status: string = 'buy', page: number = 1, pageSize: number = 12) {
-  return await searchProperties(query, page, pageSize, { status });
 }
 
 // ============================================================================

@@ -29,14 +29,6 @@ export interface Property {
   TerminatedEntryTimestamp?: string;
   TerminatedDate?: string;
   UnavailableDate?: string;
-  
-  // Legacy fields (kept for backward compatibility but will be undefined)
-  MLSNumber?: string;
-  ListPrice?: number;
-  ClosePrice?: number;
-  MlsStatus?: string;
-  IsNewListing?: boolean;
-  Bedrooms?: number;
   BedroomsAboveGrade?: number;
   BedroomsBelowGrade?: number;
   Bathrooms?: number;
@@ -188,21 +180,6 @@ export interface FrontendMedia {
   className: string;                // ClassName
   createdAt: string;                // CreatedAt
   updatedAt: string;                // UpdatedAt
-}
-
-/**
- * Legacy TRREB Media Record Interface (for backward compatibility)
- * @deprecated Use MediaRecord instead
- */
-export interface TRREBMediaRecord {
-  MediaKey: string;
-  MediaURL: string;
-  MediaType: string;
-  MediaCategory?: string;
-  Order?: number;
-  PreferredPhotoYN?: boolean;
-  ShortDescription?: string;
-  ListingKey: string;
 }
 
 export interface PropertyWithCoords extends Property {

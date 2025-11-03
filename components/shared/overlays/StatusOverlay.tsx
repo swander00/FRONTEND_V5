@@ -83,29 +83,6 @@ export const StatusOverlay: React.FC<StatusOverlayProps> = ({
   );
 };
 
-// Legacy components for backward compatibility
-export const SoldOverlay: React.FC<{ salePrice?: number; saleDate?: string }> = ({ 
-  salePrice, 
-  saleDate 
-}) => (
-  <StatusOverlay 
-    status="sold" 
-    data={{ price: salePrice, date: saleDate }}
-    showDetails={!!(salePrice || saleDate)}
-  />
-);
-
-export const LeasedOverlay: React.FC<{ leasePrice?: number; leaseStartDate?: string }> = ({ 
-  leasePrice, 
-  leaseStartDate 
-}) => (
-  <StatusOverlay 
-    status="leased" 
-    data={{ price: leasePrice, date: leaseStartDate }}
-    showDetails={!!(leasePrice || leaseStartDate)}
-  />
-);
-
 export const RemovedOverlay: React.FC<{ removalDate?: string }> = ({ removalDate }) => (
   <StatusOverlay 
     status="removed" 

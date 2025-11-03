@@ -175,12 +175,12 @@ export const usePropertyFields = (property: Property) => {
     config: fieldData.listing.status,
     text: fieldData.listing.status.badgeText,
     colorClass: fieldData.listing.status.badgeColorClass,
-    showNewListingRibbon: fieldData.listing.status.showNewListingRibbon && property.IsNewListing,
+    showNewListingRibbon: fieldData.listing.status.showNewListingRibbon && ((property as any).IsNewListing || false),
     hasOverlay: ['sold', 'leased', 'terminated', 'expired', 'suspended'].includes(
-      property.MlsStatus?.toLowerCase() || ''
+      ((property as any).MlsStatus || property.status || '').toLowerCase()
     ),
-    overlayType: property.MlsStatus?.toLowerCase() || ''
-  }), [fieldData.listing.status, property.MlsStatus, property.IsNewListing]);
+    overlayType: ((property as any).MlsStatus || property.status || '').toLowerCase()
+  }), [fieldData.listing.status, property.status, (property as any).MlsStatus, (property as any).IsNewListing]);
   
   // Price utilities
   const price = useMemo(() => ({
@@ -190,10 +190,10 @@ export const usePropertyFields = (property: Property) => {
     suffix: fieldData.listing.price.suffix,
     textColor: fieldData.listing.price.textColor,
     statusColor: fieldData.listing.price.statusColor,
-    isSold: property.MlsStatus?.toLowerCase() === 'sold',
-    isLeased: property.MlsStatus?.toLowerCase() === 'leased',
-    isActive: ['for sale', 'active', 'for lease'].includes(property.MlsStatus?.toLowerCase() || '')
-  }), [fieldData.listing.price, property.MlsStatus]);
+    isSold: ((property as any).MlsStatus || property.status || '').toLowerCase() === 'sold',
+    isLeased: ((property as any).MlsStatus || property.status || '').toLowerCase() === 'leased',
+    isActive: ['for sale', 'active', 'for lease'].includes(((property as any).MlsStatus || property.status || '').toLowerCase())
+  }), [fieldData.listing.price, property.status, (property as any).MlsStatus]);
   
   return {
     // Core field data
